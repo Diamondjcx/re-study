@@ -1,6 +1,6 @@
 Watcher.prototype = {
     update: function() {
-        this.run();   // 属性值变化受到通知
+        this.run();   // 属性值变化收到通知
     },
     run: function(){
         var value = this.get();

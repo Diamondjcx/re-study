@@ -1,7 +1,7 @@
 // 对每个属性进行劫持
 var data = {name: 'kindeng'};
 observe(data);
-data.name = 'dmq';
+// data.name = 'dmq';
 
 function observe(data) {
     if (!data || typeof data !== 'object') {
@@ -11,6 +11,17 @@ function observe(data) {
         defineReactive(data, key, data[key]);
     })
 }
+
+function Dep() {
+  this.subs = [];
+}
+
+Dep.prototype.addSub = function (sub) {
+  this.subs.push(sub);
+};
+Dep.prototype.notify = function () {
+  this.subs.forEach(sub => sub.update());
+};
 
 function defineReactive(data, key, val) {
     // 消息订阅器
@@ -34,17 +45,3 @@ function defineReactive(data, key, val) {
 
 // 消息订阅器，用来收集订阅者，数据变动触发notify，再调用订阅者的update方法
 
-function Dep() {
-    this.subs = [];
-}
-
-Dep.prototype = {
-    addSub: function(sub) {
-        this.subs.push(sub)
-    },
-    notify: function() {
-        this.subs.forEach((sub) => {
-            sub.update()
-        })
-    }
-}

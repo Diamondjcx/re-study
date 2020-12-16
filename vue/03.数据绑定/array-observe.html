@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function defineReactive(data, key, value) {
+    Object.defineProperty(data, key, {
+      enumerable: true,
+      configurable: true,
+      get: function defineGet() {
+        console.log(`get key: ${key} value: ${value}`)
+        return value
+      },
+      set: function defineSet(newVal) {
+        console.log(`set key: ${key} value: ${newVal}`)
+        value = newVal
+      }
+    })
+  }
+  function observe(data) {
+    Object.keys(data).forEach(function(key) {
+      defineReactive(data, key, data[key])
+    })
+  }
+  let arr = [1, 2, 3]
+  observe(arr)
+  
+
+  通过下标获取某个元素和修改某个元素的值，可以触发getter和setter
+
+  数组的push方法，数组下标可以看做对象的key，增加了下索引为3的元素。但是并未对新的下标进行observe，不会触发
+
+  数组的unshift方法：将原来索引为0、1、2、3的值取出来，然后重新赋值，所以触发了很多次getter和setter
+
+  数组的pop方法：移除的时候会触发getter，再次修改或者取值，并不会触发
+
+  总结：
+    通过索引访问或设置对应元素的值时，可以触发getter和setter方法
+    通过push或unshift会增加索引，对于新增加的属性，需要再手动初始化才能被observe
+    通过 pop 或 shift 删除元素，会删除并更新索引，也会触发 setter 和 getter 方法
+
+  vue对数组的observe进行了重写，hack
+
+  
+  </script>
+</body>
+</html>

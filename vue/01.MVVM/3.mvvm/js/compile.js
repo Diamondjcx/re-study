@@ -1,6 +1,6 @@
 function Compile(el) {
-    this.$el = this.isElementNode(el) ? el : document.querySelector(el);
-    if ($el) {
+    this.$el = document.querySelector(el);
+    if (this.$el) {
         this.$fragment = this.node2Fragment(this.$el);
         this.init();
         this.$el.appendChild(this.$fragment);
@@ -34,7 +34,7 @@ Compile.prototype = {
             }
         })
     },
-    compile: function() {
+    compile: function(node) {
         var nodeAttrs = node.attributes;
         var me = this;
         [].slice.call(nodeAttrs).forEach((attr) => {
@@ -48,10 +48,29 @@ Compile.prototype = {
                     compileUtil.eventHandles(node, me.$vm, exp, idr)
                 } else {
                     // 普通指令
-                    complirUtil[dir] &&compileUtil[dir](node, me.$vm, exp)
+                    compileUtil[dir] &&compileUtil[dir](node, me.$vm, exp)
                 }
             }
         })
+    },
+    compileText: function(node, exp) {
+      compileUtil.text(node, this.$vm, exp);
+    },
+
+    isDirective: function(attr) {
+        return attr.indexOf('v-') == 0;
+    },
+
+    isEventDirective: function(dir) {
+        return dir.indexOf('on') === 0;
+    },
+
+    isElementNode: function(node) {
+        return node.nodeType == 1;
+    },
+
+    isTextNode: function(node) {
+        return node.nodeType == 3;
     }
 }
 

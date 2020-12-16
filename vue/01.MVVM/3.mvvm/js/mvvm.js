@@ -1,4 +1,4 @@
-function MVVM($options) {
+function MVVM(options) {
     this.$options = options;
     var data = this._data = this.$options.data;
     var me = this;
