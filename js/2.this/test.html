@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button class="button">onclick</button>
+<ul class="list">
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+</ul>
+<script>
+    var button = document.querySelector('button');
+    button.onclick = function(ev){
+        console.log(this);
+        console.log(this === ev.currentTarget); // true
+    }
+    var list = document.querySelector('.list');
+    list.addEventListener('click', function(ev){
+        console.log(this === list); // true
+        console.log(this === ev.currentTarget); // true
+        console.log('this',this);
+        console.log('ev.target',ev.target);
+        console.log('ev.currentTarget',ev.currentTarget);
+    }, false);
+
+    // onclick和addEventerListener是指向绑定事件的元素
+    // ev.currentTarget是绑定事件的元素，而ev.target是当前触发事件的元素。
+</script>
+
+</body>
+</html>
