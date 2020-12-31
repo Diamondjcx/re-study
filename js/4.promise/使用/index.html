@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const promsie = new Promise((resolve, reject) => {
+      const flag = true
+      if (flag) {
+        resolve('成功')
+      } else {
+        reject('失败')
+      }
+    })
+
+    promsie.then((value) => {
+      console.log('20',value);
+    }, (error) => {
+      console.log('22',error);
+    })
+
+    console.log('25-console');
+
+
+    function timeout(ms){
+      return new Promise((resolve, reject) => {
+        setTimeout(resolve, ms, 'done')
+      })
+    }
+
+    timeout(100).then((value) => {
+      console.log(value);
+    })
+  </script>
+</body>
+</html>
