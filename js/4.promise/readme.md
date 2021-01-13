@@ -169,3 +169,38 @@ Promise.race([requestImg(), timeout()])
     console.log(err)
   })
 ```
+
+## 实现自己的promise
+
+构造函数，使用类的方式
+
+```javascript
+class Promise {
+  constructor(exctor){
+    this.status = 'pending'
+    this.value = undefined
+    this.reason = undefined
+    this.onResolvedCallbacks = [];
+    this.onRejectedCallbacks = [];
+    let resolve = (data) => {
+      if (this.status === 'pending') {
+        this.value = data;
+        this.status = 'resolved'
+        this.onResolvedCallbacks.forEach((fn) => fn())
+      }
+    }
+    let reject = (reason) => {
+      if (this.status === 'pending') {
+        this.reason = reason
+        this.status = 'rejected'
+        this.onRejectedCallbacks.for(fn=>fn())
+      }
+    }
+    try{
+      exectur(resolve, reject)     
+    } catch(e){
+      reject(e)
+    }
+  }
+}
+```
