@@ -91,6 +91,114 @@ obj = { c: 3 } // 报错
 
 与 function 关键字的区别
 
+1、箭头函数没有 arguments（使用更好的语法，剩余运算符替代）
+
+2、没有 prototype 属性，不能用作构造函数（不能使用 new 关键字调用）
+
+3、函数体内的 this 是定义时所在的对象，而不是使用时所在的对象
+
+- this 对象的指向是可变的，但是在箭头函数中，它是固定的
+
+```javascript
+function foo() {
+  setTimeout(() => {
+    console.log('id:', this.id)
+  }, 100)
+}
+
+var id = 21
+
+foo.call({ id: 42 })
+// id: 42
+```
+
+箭头函数总是指向函数定义生效时所在的对象
+
+- 箭头函数可以让 setTimeout 里面的 this，绑定定义时所在的作用域，而不是指向运行时所在的作用域
+
+```javascript
+function Timer() {
+  this.s1 = 0
+  this.s2 = 0
+  // 箭头函数
+  setInterval(() => this.s1++, 1000)
+  // 普通函数
+  setInterval(function () {
+    this.s2++
+  }, 1000)
+}
+
+var timer = new Timer()
+
+setTimeout(() => console.log('s1: ', timer.s1), 3100)
+setTimeout(() => console.log('s2: ', timer.s2), 3100)
+// s1: 3
+// s2: 0
+```
+
+- 箭头函数可以让 this 指向固定化，有利于封装回调函数
+
+```javascript
+var handler = {
+  id: '123456',
+
+  init: function () {
+    document.addEventListener(
+      'click',
+      (event) => this.doSomething(event.type), // 箭头函数没有自己的this，内部的this就是外层代码块的this
+      false
+    )
+  },
+
+  doSomething: function (type) {
+    console.log('Handling ' + type + ' for ' + this.id)
+  },
+}
+```
+
+箭头函数没有自己的 this，引用外层的 this
+举例：下面代码中有一个 this
+
+```javascript
+function foo() {
+  return () => {
+    return () => {
+      return () => {
+        console.log('id:', this.id)
+      }
+    }
+  }
+}
+
+var f = foo.call({ id: 1 })
+
+var t1 = f.call({ id: 2 })()() // id: 1
+var t2 = f().call({ id: 3 })() // id: 1
+var t3 = f()().call({ id: 4 }) // id: 1
+```
+
+- 除了 this，arguments、super、new.target 也不存在，指向外层函数对象
+
+```javascript
+function foo() {
+  setTimeout(() => {
+    console.log('args:', arguments)
+  }, 100)
+}
+
+foo(2, 4, 6, 8)
+// args: [2, 4, 6, 8]
+```
+
+- 没有自己的 this，不能用 call()、apply()、bind()改变 this 的指向
+
+```javascript
+;(function () {
+  return [(() => this.x).bind({ x: 'inner' })()]
+}.call({ x: 'outer' }))
+// ['outer']
+```
+
 ## iterator 迭代器
 
 ## 扩展运算符
