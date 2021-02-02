@@ -89,8 +89,236 @@ setTimeout(() => {
 - 在执行宏任务 setTimeout1 时会生成微任务 Promise2 ，放入微任务队列中，接着先去清空微任务队列中的所有任务，输出 Promise2
 - 清空完微任务队列中的所有任务后，就又会去宏任务队列取一个，这回执行的是 setTimeout2
 
+### setTimeout
+
+异步可以延时执行，我们经常这么实现延时3秒执行：
+```javascript
+setTimeout(() => {
+    console.log('延时3秒');
+},3000)
+
+```
+
+```javascript
+setTimeout(() => {
+    task();
+},3000)
+console.log('执行console');
+//执行console
+//task()
+
+```
+
+```javascript
+setTimeout(() => {
+    task()
+},3000)
+
+sleep(10000000)
+// 超过3s
+```
+
+> 
+task()进入Event Table并注册,计时开始。
+执行sleep函数，很慢，非常慢，计时仍在继续。
+3秒到了，计时事件timeout完成，task()进入Event Queue，但是sleep也太慢了吧，还没执行完，只好等着。
+sleep终于执行完了，task()终于从Event Queue进入了主线程执行。
+
+### setInterval
+循环的执行.对于执行顺序来说，setInterval会每隔指定的时间将注册的函数置入Event Queue，如果前面的任务耗时太久，那么同样需要等待
+
 ## Node 中的 Event Loop
+
+Node中的Event Loop是基于libuv实现的，而libuv是Node的新跨平台抽象层，libuv使用异步，事件驱动的编程方式，核心是提供i/o的事假循环和异步回调
+
+node.js的event是基于libuv，而浏览器的event loop 则是在html5的规范中明确定义
+
+```
+   ┌───────────────────────────┐
+┌─>│           timers          │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │     pending callbacks     │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+│  │       idle, prepare       │
+│  └─────────────┬─────────────┘      ┌───────────────┐
+│  ┌─────────────┴─────────────┐      │   incoming:   │
+│  │           poll            │<─────┤  connections, │
+│  └─────────────┬─────────────┘      │   data, etc.  │
+│  ┌─────────────┴─────────────┐      └───────────────┘
+│  │           check           │
+│  └─────────────┬─────────────┘
+│  ┌─────────────┴─────────────┐
+└──┤      close callbacks      │
+   └───────────────────────────┘
+
+```
+Node 的Event Loop分为6个阶段：
+
+- timers: 执行setTimeout() 和setInterval()中到期的callback
+- pending callback： 上一轮循环中有少数的I/O callback会被延迟到这一轮的这一阶段
+- idle,prepare： 内部使用
+- poll：执行I/O callback，在适当的条件下会阻塞在这个阶段
+- check：执行setImmediate的callback
+- close callbacks：执行close事件的callback，例如socket.on('close'[,fn])、http.server.on('close, fn)
+
+### timers阶段
+
+会执行setTimeout和setInterval回调，并且由poll阶段控制的
+
+timers阶段使用最小堆而不是队列保存元素。timemout的callback是按照超时时间顺序调用，不是先进先出
+
+在第一个执行阶梯上，尽可能准确的执行
+
+### pending callbacks阶段
+
+pending callbacks 阶段其实是 I/O 的 callbacks 阶段。比如一些 TCP 的 error 回调等。
+举个栗子：如果TCP socket ECONNREFUSED在尝试connect时receives，则某些* nix系统希望等待报告错误。 这将在pending callbacks阶段执行。
+
+### poll阶段
+
+- 执行I/O回调
+- 处理poll队列中的事件
+  
+  timers极端没有可执行任务
+  - poll queue 非空 ，则执行
+  
+  - poll queue 为空
+    - 如果setImmediate()有回调需要执行，则会立即进入到check阶段
+    - 相反，则 poll 阶段将等待 callback 被添加到队列中再立即执行，这也是为什么我们说 poll 阶段可能会阻塞的原因如果没有setImmediate()有回调需要执行
+### check阶段
+
+check阶段在poll阶段之后，setImmediate()回调会被加入到check队列中
+代码执行时，EventLoop最终会到达poll阶段，然后等待传入链接或者请求等，但是如果已经制定了setImmediate()并且这时候poll阶段已经空闲的时候，则poll阶段将被中止，然后开始check阶段的执行
+
+### close callbacks阶段
+
+如果一个socket或者事件处理函数突然关闭/中断（比如：socket.destroy）则这个阶段就会发生close的回调执行。否则他会通过process.nextTick发出
+
+### setImmediate() vs setTimeout()
+
+- setImmediate在 poll 阶段后执行，即check 阶段
+- setTimeout 在 poll 空闲时且设定时间到达的时候执行，在 timer 阶段
+
+计时器的执行顺序将根据调用它们的上下文而有所不同。如果两者都是从主模块中调用，则时序将受到进程性能的限制
+
+不在一个I/O周期，则两个计时器的执行顺序不准确，受进程性能的约束
+
+```javascript
+// timeout_vs_immediate.js
+setTimeout(() => {
+  console.log('timeout');
+}, 0);
+
+setImmediate(() => {
+  console.log('immediate');
+});
+
+// $ node timeout_vs_immediate.js
+// timeout
+// immediate
+
+// $ node timeout_vs_immediate.js
+// immediate
+// timeout
+
+```
+在一个I/O周期移动这两个调用，则之中首先执行立即回调
+
+```javascript
+// timeout_vs_immediate.js
+const fs = require('fs');
+
+fs.readFile(__filename, () => {
+  setTimeout(() => {
+    console.log('timeout');
+  }, 0);
+  setImmediate(() => {
+    console.log('immediate');
+  });
+});
+
+// $ node timeout_vs_immediate.js
+// immediate
+// timeout
+
+// $ node timeout_vs_immediate.js
+// immediate
+// timeout
+
+```
+所以与setTimeout（）相比，使用setImmediate（）的主要优点是，如果在I / O周期内安排了任何计时器，则setImmediate（）将始终在任何计时器之前执行，而与存在多少计时器无关。
+
+### nextTick queue
+
+无论当前事件循环的当前阶段如何，都将在当前操作完成之后处理nextTickQueue
+如果存在 nextTickQueue，就会清空队列中的所有回调函数，并且优先于其他 microtask 执行
+
+```javascript
+setTimeout(() => {
+ console.log('timer1')
+ Promise.resolve().then(function() {
+   console.log('promise1')
+ })
+}, 0)
+process.nextTick(() => {
+ console.log('nextTick')
+ process.nextTick(() => {
+   console.log('nextTick')
+   process.nextTick(() => {
+     console.log('nextTick')
+     process.nextTick(() => {
+       console.log('nextTick')
+     })
+   })
+ })
+})
+// nextTick=>nextTick=>nextTick=>nextTick=>timer1=>promise1
+
+```
+### process.nextTick() vs setImmediate()
+
+- process.nextTick（）在同一阶段立即触发
+- setImmediate（）在事件循环的以下迭代或“tick”中触发
+
 
 ## Node 与浏览器的 Event Loop 差异
 
+一句话总结其中：浏览器环境下，microtask的任务队列是每个macrotask执行完之后执行。而在Node.js中，microtask会在事件循环的各个阶段之间执行，也就是一个阶段执行完毕，就会去执行microtask队列的任务
 # 总结
+
+eg
+```
+<div id="outer">
+    <div id="inner"></div>
+</div>
+```
+
+```javascript
+const inner = document.getElementById("inner");
+const outer = document.getElementById("outer");
+
+// 监听 outer 的属性变化。
+new MutationObserver(() => console.log("mutate outer"))
+    .observe(outer, { attributes: true });
+
+// 处理 click 事件。
+function onClick()
+{
+    console.log("click");
+    setTimeout(() => console.log("timeout"), 0);
+    Promise.resolve().then(() => console.log("promise"));
+    outer.setAttribute("data-mutation", Math.random());
+}
+
+// 监听 click 事件。
+inner.addEventListener("click", onClick);
+outer.addEventListener("click", onClick);
+```
+
+第一种方式直接点击黄色方块，输出结果 click promise mutate click promise mutate timeout timeout
+
+第二种方式：代码调用方式 inner.click()
+
+区别在于执行Microtask   Queue前，当前执行栈是否为空
