@@ -201,8 +201,55 @@ foo(2, 4, 6, 8)
 
 不适用场合
 
+1、定义对象的方法
 
- 
+```javascript
+const cat = {
+  lives: 9,
+  jumps: () => {
+    this.lives--
+  },
+}
+cat.jumps()
+```
+
+因为对象构不成单独的作用域，所以此时的 this 指向的是 window，普通函数，this 指向的是 cat
+
+```javascript
+globalThis.s = 21
+
+const obj = {
+  s: 42,
+  m: () => console.log(this.s),
+}
+
+obj.m() // 21 指向的是window
+```
+
+等同于
+
+```javascript
+globalThis.s = 21
+globalThis.m = () => console.log(this.s)
+
+const obj = {
+  s: 42,
+  m: globalThis.m,
+}
+
+obj.m() // 21
+```
+
+2、需要动态 this 的时候，不应使用箭头函数
+
+```javascript
+var button = document.getElementById('press')
+button.addEventListener('click', () => {
+  this.classList.toggle('on')
+})
+```
+
+箭头函数使得 this 指向 window，点击按钮会报错。普通函数，this 指向被点击的按钮对象
 
 ## iterator 迭代器
 
