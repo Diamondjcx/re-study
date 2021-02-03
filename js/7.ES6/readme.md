@@ -305,7 +305,23 @@ let {
 
 使用 3 个点(...)，后面跟着一个含有 iterator 接口的数据结构
 
+
 - 扩展运算符：
+
+```javascript
+function sum(x, y, z) {
+  return x + y + z;
+}
+const numbers = [1, 2, 3];
+
+//不使用延展操作符
+console.log(sum.apply(null, numbers));
+
+//使用延展操作符
+console.log(sum(...numbers));// 6
+
+```
+
 
 ```javascript
 let arr = [1, 2, 3, 4, 5]
@@ -451,4 +467,510 @@ axios.get('http://localhost:3000').then((res) => {
 4、第三方库可能没有提供错误处理
 
 Promise 的 then 方法会接受 2 个函数，第一个函数是这个 Promise 实例被 resolve 时执行的回调，第二个函数是这个 Promise 实例被 reject 时执行的回调，而这个也是开发者主动调用的
+
 使用 Promise 在异步请求发送错误的时候，即使没有捕获错误，也不会阻塞主线程的代码（准确的来说，异步的错误都不会阻塞主线程的代码）
+
+```javascript
+axios.get("http://localhost:3000")
+.then(res=>{
+  // do something
+},err=>{
+  // 错误处理
+})
+
+// Promise提供catch方法也是相同的效果
+axios.get("http://localhost:3000")
+.then(res=>{
+// do something
+}).catch(res => {
+  // 错误处理
+})
+```
+
+5、不清楚回调是否都是异步调用的 
+
+Promise在设计的时候保证所有响应的处理回调都是异步调用的，不会阻塞代码的执行，Promise将then方法的回调放入一个叫微任务的队列中（MicroTask），确保这些回调任务在同步任务执行完以后再执行
+
+```javascript
+let promise = new Promise(resolve => {
+  resolve(Promise.reject('报错了'))
+})
+
+setTimeout(() => {
+  console.log(promise);
+})
+
+// Uncaught (in promise) 报错了   rejected
+```
+
+很多人认为promise中调用了resolve函数则这个promise一定会进入fulfilled状态，但是这里可以看到，即使调用了resolve函数，仍返回了一个拒绝状态的Promise，原因是因为如果再一个promise的resolve函数中又传入了一个Promise，会展开传入的这个promise
+
+这里因为传入了一个拒绝状态的promise,resolve函数展开这个promise后,就会变成一个拒绝状态的promise
+
+等同于
+
+```javascript
+// let promise = new Promise(resolve => {
+//   resolve(Promise.reject('报错了'))
+// })
+
+let promise = Promise.reject('报错了')
+
+setTimeout(() => {
+  console.log(promise);
+})
+```
+
+async await
+
+```javascript
+async function getInfo() {
+  let res1 = await axios.get('http://localhost:8087/mock.json')
+  let res2 = await axios.get('http://localhost:8087/mock2.json') // 等到收到mock.json相应结果后再发出请求
+  let res3 = await axios.get('http://localhost:8087/mock3.json') // 等到收到mock2.json相应结果后再发出请求
+
+  // 等到收到mock3.json相应结果后再发出请求
+  // do something after response
+}
+```
+
+### ES6 Module
+
+AMD CMD：浏览器端
+CommonJs：服务端
+
+可以在script标签中使用tpye="module"在同域的情况下可以解决（非同域情况会被同源策略拦截,webstorm会开启一个同域的服务器没有这个问题，vscode貌似不行
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+  <script type='module'>
+    import {test} from './module.js'
+    test()
+  </script>
+</body>
+</html>
+
+<!-- 跨域 -->
+```
+
+ES6 Module 使用import关键字导入模块，export关键字导出模块
+
+1、ES6 Module是静态的，也就是说它是在编译阶段运行，和var以及function一样具有提升效果（这个特点使得它支持tree shaking）
+
+2、自动采用严格模式（顶层的this返回undefined）
+
+3、ES6 Module支持使用export {<变量>}导出具名的接口，或者export default导出匿名的接口
+
+module.js导出：
+
+```javascript
+let x = 10;
+let y = 20;
+
+export {x} // 导出一个变量的引用
+export default y // 导出的是一个值
+```
+
+a.js导入：
+
+```javascript
+import {x} from './module.js'
+
+import y from './module.js'
+
+```
+
+在a.js中使用import导入这2个变量的后，在module.js中因为某些原因x变量被改变了，那么会立刻反映到a.js，而module.js中的y变量改变后，a.js中的y还是原来的值
+
+module.js
+
+```javascript
+let x = 10;
+let y = 20;
+
+setTimeout(() => {
+  x = 100
+  y = 200
+},1000)
+
+export {x} // 导出一个变量的引用
+export default y // 导出的是一个值
+```
+
+a.js导入：
+
+```javascript
+import {x} from './module.js'
+
+import y from './module.js'
+
+console.log(x,y); 
+
+setTimout(() => {
+  console.log(x,y); // 100 20  y的值并没有改变
+},1000)
+```
+
+如果将变量指定为default进行导出，则可以使用import直接导出，但是依然是引用
+
+module.js
+
+```javascript
+let x = 10;
+let y = 20;
+
+setTimeout(() => {
+  x = 100
+  y = 200
+},1000)
+
+export {x} // 导出一个变量的引用
+export {y as default} 
+```
+
+a.js导入：
+
+```javascript
+import {x} from './module.js'
+
+import y from './module.js'  // 依然是变量的引用
+
+```
+
+ES6 Module和CommonJs区别
+
+- CommonJs输出的是一个值的拷贝,ES6 Module通过export {<变量>}输出的是一个变量的引用,export default输出的是一个值
+
+- CommonJs运行在服务器上,被设计为运行时加载,即代码执行到那一行才回去加载模块,而ES6 Module是静态的输出一个接口,发生在编译的阶段
+
+- CommonJs在第一次加载的时候运行一次并且会生成一个缓存,之后加载返回的都是缓存中的内容
+
+#### import()
+
+ES6 Module静态编译的特点，导致无法动弹加载，但是会有一些需要动态加载模块的需求，可以使用import作为一个函数实现动态加载模块，返回一个Promise，Promise被resolve时的值为输出的模块
+
+```javascript
+if (true) {
+  import('./module.js').then(res=>{
+    console.log(res);
+  })
+}
+```
+使用import方法改写上面的a.js使得它可以动态加载(使用静态编译的ES6 Module放在条件语句会报错,因为会有提升的效果,并且也是不允许的),可以看到输出了module.js的一个变量x和一个默认输出
+
+Vue中路由的懒加载的ES6写法就是使用了这个技术,使得在路由切换的时候能够动态的加载组件渲染视图
+
+### 函数默认值
+
+ES6 允许在函数的参数中设置默认值
+
+es5 
+```javascript
+function func(a) {
+  return a || 1
+}
+func() //1  会有问题，假如传递一个空字符串或者0 会直接执行为1
+```
+
+es6
+```javascript
+function func (a = 1) {
+  return a 
+}
+func() // 1
+```
+如果使用了函数的默认参数，在函数的参数区域（括号里面），会作为一个单独的块级作用域，并且拥有let/const方法的一些热性，比如暂时性死区
+
+```javascript
+let x = 1;
+function func(y = x) {  // 没有传递参数，使用函数默认参数，y就会寻找x的值，沿着词法作用域在外层找到了值为1的变量x
+  let x = 2;
+  console.log(y); // 1
+}
+func()
+```
+
+```javascript
+let w = 1, z = 2
+
+{
+  x = w + 1 // 2
+  y = x + 1 // 3
+  z = z + 1 // 报错 z is not defined   相当于暂时性死区   声明之前直接使用会报错
+}
+
+function func (x = w + 1, y = x + 1, z = z + 1) {
+  console.log(x,y,z); // z is not defined
+}
+
+func()
+
+let w = 1, z = 2
+
+
+
+function func (x = w + 1, y = x + 1, z = z + 1) {
+  console.log(x,y,z); 
+}
+
+func(10,20,30) // 10 20 30
+
+```
+
+```javascript
+function bar (func = () => foo) {
+  let foo = 'inner'
+  console.log(func())
+}
+bar() // foo is not defined  暂时性死区
+```
+### 函数默认值配合解构赋值
+
+```javascript
+function func({ x = 10} = {},{ y }={ y : 10 }) {
+  console.log(x, y)
+}
+func({},{}) // 10 undefined 传入空对象，不会使用默认值，会尝试从{}解构x，解构不出来，x有默认值，y没有默认值
+func( undefined, {}) // 10 undefined 第一个参数会使用默认值，从默认值{}解构x，解构不出来，x有默认值，y解构不出
+func( undefined, undefined) //都是用默认值 10 10
+func() // 10 10 
+func({x:1},{y:2}) // 1,2
+```
+第一行给func函数传入了2个空对象,所以函数的第一第二个参数都不会使用函数默认值,然后函数的第一个参数会尝试解构对象,提取变量x,因为第一个参数传入了一个空对象,所以解构不出变量x,但是这里又在内层设置了一个默认值,所以x的值为10,而第二个参数同样传了一个空对象,不会使用函数默认值,然后会尝试解构出变量y,发现空对象中也没有变量y,但是y没有设置默认值所以解构后y的值为undefined
+
+第二行第一个参数显式的传入了一个undefined,所以会使用函数默认值为一个空对象,随后和第一行一样尝试解构x发现x为undefined,但是设置了默认值所以x的值为10,而y和上文一样为undefined
+
+第三行2个参数都会undefined,第一个参数和上文一样,第二个参数会调用函数默认值,赋值为{y:10},然后尝试解构出变量y,即y为10
+
+第四行和第三行相同,一个是显式传入undefined,一个是隐式不传参数
+
+第五行直接使用传入的参数,不会使用函数默认值,并且能够顺利的解构出变量x,y
+
+## Proxy
+
+Proxy作为拦截器，可以在目标对象前架设一个拦截器，他们访问对象，必须先经过这层拦截器
+
+Proxy和Reflect配套使用，前者拦截对象，后者返回拦截结果
+
+```javascript
+let obj = {}
+obj = new Proxy(obj, {
+  set(target, key, val) {
+    console.log('oops')
+    return Reflect.set(target, key, val)
+  }
+})
+obj.foo = 'bar' // oops 
+```
+ ### vue
+
+ ## Object.assign
+
+ 将多个对象进行合并
+
+```javascript
+let target = {}
+
+let obj = Object.assign(target, {a:1}, {b:2})
+
+obj // {a:1, b:2}
+```
+
+Object.assign遍历需要合并给target的对象(即sourece对象的集合)的属性,用等号进行赋值,这里遍历{a:1}将属性a和值数字1赋值给target对象,然后再遍历{b:2}将属性b和值数字2赋值给target对象
+
+知识点：
+
+- Object.assign是浅拷贝,对于值是引用类型的属性,拷贝仍旧的是它的引用
+
+
+- 可以拷贝Symbol属性
+
+- 不能拷贝不可枚举的属性
+
+- Object.assign保证target始终是一个对象,如果传入一个基本类型,会转为基本包装类型,null/undefined没有基本包装类型,所以传入会报错
+
+- source参数如果是不可枚举的数据类型会忽略合并(字符串类型被认为是可枚举的,因为内部有iterator接口)
+
+- 因为是用等号进行赋值,如果被赋值的对象的属性有setter函数会触发setter函数,同理如果有getter函数,也会调用赋值对象的属性的getter函数(这就是为什么Object.assign无法合并对象属性的访问器,因为它会直接执行对应的getter/setter函数而不是合并它们,如果需要合并对象属性的getter/setter函数,可以使用ES7提供的Object.getOwnPropertyDescriptors和Object.defineProperties这2个API实现)
+
+```javascript
+let obj = {
+  get a () {
+    console.log('get');
+    return 1
+  },
+  set a (val) {
+    console.log('set');
+  }
+}
+let obj2 = {}
+
+Object.defineProperties(obj2, Object.getOwnPropertyDescriptors(obj))
+
+console.log("obj", obj)
+console.log("obj2", obj2)
+```
+
+成功的复制了obj对象中a属性的getter/setter
+
+这里有一个坑不得不提,对于target参数传入一个字符串,内部会转换为基本包装类型,而字符串基本包装类型的属性是只读的(属性描述符的writable属性为false)
+
+```javascript
+let strObj = Object('abc')
+
+console.log(Object.getOwnPropertyDescriptors(strObj))
+
+// 不可写
+0: {value: "a", writable: false, enumerable: true, configurable: false}
+1: {value: "b", writable: false, enumerable: true, configurable: false}
+2: {value: "c", writable: false, enumerable: true, configurable: false}
+
+Object.assign('abc','def')
+
+// Cannot assign to read only property '0' of object '[object String]'
+
+```
+字符串abc会转为基本包装类型,然后将字符串def合并给这个基本包装类型的时候会将字符串def展开,分别将字符串def赋值给基本包装类型abc的0,1,2属性,随后就会在赋值的时候报错
+
+### 和ES9的对象扩展运算符相比
+
+功能类似，区别在于getter/setter
+
+```javascript
+let obj = {
+  get a () {
+    console.log('get')
+    return 'obj的a属性'
+  },
+  set a (val) {
+    console.log('set')
+  }
+}
+
+let obj2 = {
+  get a () {
+    console.log('get2')
+    return 'obj2的a属性'
+  },
+  set a (val) {
+    console.log('set2')
+  }
+}
+
+console.log('扩展运算符')
+let obj3 = {...obj, ...obj2}
+console.log(obj3) 
+
+// get
+// get2
+// {a: "obj2的a属性"}
+
+
+console.log('assign运算符')
+let obj4 = Object.assign(obj, obj2)
+console.log(obj4)
+
+// get2
+// set
+// a: "obj的a属性"
+// get a: ƒ a()
+// set a: ƒ a(val)
+```
+
+
+ES9:
+
+会合并2个对象,并且只触发2个对象对应属性的getter函数
+相同属性的后者覆盖了前者,所以a属性的值是第二个getter函数return的值
+
+ES6:
+
+同样会合并这2个对象,并且只触发了obj上a属性的setter函数而不会触发它的getter函数(结合上述Object.assgin的内部实现理解会容易一些)
+obj上a属性的setter函数替代默认的赋值行为,导致obj2的a属性不会被复制过来
+
+## 类 
+
+```javascript
+  class Animal {
+    // 构造函数，实例化的时候将会被调用，如果不指定，那么会有一个不带参数的默认构造函数.
+    constructor(name,color) {
+      this.name = name;
+      this.color = color;
+    }
+    // toString 是原型对象上的属性
+    toString() {
+      console.log('name:' + this.name + ',color:' + this.color);
+
+    }
+  }
+
+ var animal = new Animal('dog','white');//实例化Animal
+ animal.toString();
+
+ console.log(animal.hasOwnProperty('name')); //true
+ console.log(animal.hasOwnProperty('toString')); // false
+ console.log(animal.__proto__.hasOwnProperty('toString')); // true
+
+ class Cat extends Animal {
+  constructor(action) {
+    // 子类必须要在constructor中指定super 函数，否则在新建实例的时候会报错.
+    // 如果没有置顶consructor,默认带super函数的constructor将会被添加、
+    super('cat','white');
+    this.action = action;
+  }
+  toString() {
+    console.log(super.toString());
+  }
+ }
+
+ var cat = new Cat('catch')
+ cat.toString();
+
+ // 实例cat 是 Cat 和 Animal 的实例，和Es5完全一致。
+ console.log(cat instanceof Cat); // true
+ console.log(cat instanceof Animal); // true
+```
+
+## Object.values()
+
+```javascript
+
+const obj = {a: 1, b: 2, c: 3};
+
+const vals=Object.keys(obj).map(key=>obj[key]);
+console.log(vals);//[1, 2, 3]
+
+const values=Object.values(obj1);
+console.log(values);//[1, 2, 3]
+```
+
+## Object.entries
+
+```javascript
+Object.keys(obj).forEach(key=>{
+	console.log('key:'+key+' value:'+obj[key]);
+})
+//key:a value:1
+//key:b value:2
+//key:c value:3
+```
+
+```javascript
+for(let [key,value] of Object.entries(obj1)){
+	console.log(`key: ${key} value:${value}`)
+}
+//key:a value:1
+//key:b value:2
+//key:c value:3
+
+```
+
+
