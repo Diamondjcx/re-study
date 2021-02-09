@@ -106,3 +106,26 @@ eslint-loader
 ...
 
 ```
+
+- chunk
+
+代码块，一个chunk由多个模块组合而成，用户代码合并与分割
+
+- module
+
+模块，在webpack里一切皆模块，一个模块对应着一个文件，会从配置的entry开始递归找出所有依赖的模块
+
+当webpack处理到不认识的模块时，需要再webpack中的module处进行配置，当检测到是什么格式的模块，使用什么loader来处理
+
+```javascript
+module: {
+  rules: [
+    {
+      test: /\.xxx$/, // 指定匹配规则
+      use: {
+        loader: 'xxx-loader' // 指定使用的loader
+      }
+    }
+  ]
+}
+```
