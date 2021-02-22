@@ -115,7 +115,7 @@ eslint-loader
 
 模块，在webpack里一切皆模块，一个模块对应着一个文件，会从配置的entry开始递归找出所有依赖的模块
 
-当webpack处理到不认识的模块时，需要再webpack中的module处进行配置，当检测到是什么格式的模块，使用什么loader来处理
+当webpack处理到不认识的模块时，需要在webpack中的module处进行配置，当检测到是什么格式的模块，使用什么loader来处理
 
 ```javascript
 module: {
@@ -129,3 +129,46 @@ module: {
   ]
 }
 ```
+
+- loader
+  - file-loader 处理静态资源模块
+  原理是把打包入口中识别出的资源模块，移动到输出目录，并且返回一个地址名称
+
+  使用场景：当我们需要模块，仅仅是从源代码挪移到打包目录，就可以使用file-loader来处理，txt，svg，csv，excel，图片资源等
+
+  ```javascript
+  module: {
+    rules:[
+      test: /\.(png|jpe?g|gif)$/,
+      use: {
+        loader: "file-loader",
+        options: { // options额外配置，比如资源名称 placeholder 占位符 [name]老资源模块的名称 [ext]老资源模块的后缀
+          name: "[name]_hash.[ext]",
+          // 打包后的存放位置
+          outputPath: "images/"
+        }
+      }
+    ]
+  }
+  ```
+    - 样式处理：
+
+    css-loader  分析css模块之间的关系，并合成一个css
+
+    loader执行顺序：从后往前
+
+    style-loader会把css-loader生成的内容，以style挂载到页面的header部分
+
+  - plugins
+   
+   可以在webpack运行到某个阶段的时候，帮你做一些事情，类似于生命周期的概念
+
+   扩展插件，在webpack构建流程中的特定时机注入扩展逻辑来改变构建结果或做你想要的事情。作用于整个构建过程
+
+   - HtmlWebpackPlugin
+
+   会在打包结束后，自动生成一个html文件，并把打包生成的js模块引入到该html中
+
+   - clean-webpack-plugin
+
+   

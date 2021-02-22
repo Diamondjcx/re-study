@@ -12,6 +12,9 @@
       {
         test: /\.css$/,
         use: "style=loader"
+      },
+      {
+        test: /\./
       }
     ]
    },
