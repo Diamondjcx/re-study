@@ -5,7 +5,10 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "start": "webpack serve --open",
+    "server": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +23,7 @@
     "toml": "^3.0.0",
     "webpack": "^5.24.2",
     "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2",
     "xml-loader": "^1.2.1",
     "yamljs": "^0.3.0"
   },
