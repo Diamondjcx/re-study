@@ -1,111 +1,121 @@
-# GET和POST的区别
+# GET 和 POST 的区别
+
 知乎中优秀的回答：https://www.zhihu.com/question/28586791
 
 结论：协议是人定的。两者没有实质性的区别
 
-## 浏览器的GET和POST
-特指的是非Ajax的HTTP请求，从浏览器和HTTP诞生就一直使用的HTTP协议中的GET/POST。
-浏览器用GET请求来获取一个html页面/图片/css/js等资源；用POST来提交一个<form>表单，并得到一个结果的网页。
+## 浏览器的 GET 和 POST
+
+特指的是非 Ajax 的 HTTP 请求，从浏览器和 HTTP 诞生就一直使用的 HTTP 协议中的 GET/POST。
+浏览器用 GET 请求来获取一个 html 页面/图片/css/js 等资源；用 POST 来提交一个<form>表单，并得到一个结果的网页。
 
 - GET
- - 读取一个资源。GET一个html文件，反复读取不应该对访问的数据产生副作用---幂等
+- 读取一个资源。GET 一个 html 文件，反复读取不应该对访问的数据产生副作用---幂等
 
- - GET是请求数据，可以对数据进行缓存（浏览器、nginx、server端）
+- GET 是请求数据，可以对数据进行缓存（浏览器、nginx、server 端）
 
- - 浏览器发送GET请求时，会在url后面带一些参数（浏览器直接发出的GET请求只能是通过url--浏览器中直接输入或者是点击a标签
-
+- 浏览器发送 GET 请求时，会在 url 后面带一些参数（浏览器直接发出的 GET 请求只能是通过 url--浏览器中直接输入或者是点击 a 标签
 
 - POST
- - 点击submit元素，会发送一个post请求，让服务端去做一件事，反复提交，会产生副作用---非幂等
+- 点击 submit 元素，会发送一个 post 请求，让服务端去做一件事，反复提交，会产生副作用---非幂等
 
- - 不幂等意味着不可以执行多次，因此就不可以缓存，也不可以保存为标签（点一次，下一次单，好恐怖
+- 不幂等意味着不可以执行多次，因此就不可以缓存，也不可以保存为标签（点一次，下一次单，好恐怖
 
- - 浏览器中POST请求都来自表单提交。每次提交，被浏览器用编码到HTTP请求的body里（
-   浏览器在POST一个表单时，url上也可以带参数，只要<form action="url" >里的url带querystring就行。
-   只不过表单里面的那些用<input> 等标签经过用户操作产生的数据都在会在body里。
-  - application/x-www-form-urlencoded用来传输简单的数据：key1=value1&key2=value2
-  - multipart/form-data:传文件,如果采用另外一种方式，对二进制文件处理很低效
+- 浏览器中 POST 请求都来自表单提交。每次提交，被浏览器用编码到 HTTP 请求的 body 里（
+  浏览器在 POST 一个表单时，url 上也可以带参数，只要<form action="url" >里的 url 带 querystring 就行。
+  只不过表单里面的那些用<input> 等标签经过用户操作产生的数据都在会在 body 里。
+- application/x-www-form-urlencoded 用来传输简单的数据：key1=value1&key2=value2
+- multipart/form-data:传文件,如果采用另外一种方式，对二进制文件处理很低效
 
-## 接口中的GET和POST
-这里指的是浏览器的Ajax api，没有浏览器那么多限制，但是太自由也不好，所以会出现相应的一些标准，比如REST
-REST中GET和POST不是随便用的
+## 接口中的 GET 和 POST
 
-  - GET】 + 【资源定位符】被专用于获取资源或者资源列表
-  ```javascript
-  GET http://foo.com/books          获取书籍列表
-  GET http://foo.com/books/:bookId  根据bookId获取一本具体的书
-  ```
-  幂等--可缓存
+这里指的是浏览器的 Ajax api，没有浏览器那么多限制，但是太自由也不好，所以会出现相应的一些标准，比如 REST
+REST 中 GET 和 POST 不是随便用的
 
-  - 【POST】+ 【资源定位符】则用于“创建一个资源”
+- GET】 + 【资源定位符】被专用于获取资源或者资源列表
+
+```javascript
+GET http://foo.com/books          获取书籍列表
+GET http://foo.com/books/:bookId  根据bookId获取一本具体的书
+```
+
+幂等--可缓存
+
+- 【POST】+ 【资源定位符】则用于“创建一个资源”
 
 ## 关于安全性
-从攻击的角度，无论是GET还是POST都不够安全
-因为HTTP本身是明文协议。每个HTTP请求和返回的每个byte都会在网络上明文传播，不管是url,header还是body
+
+从攻击的角度，无论是 GET 还是 POST 都不够安全
+因为 HTTP 本身是明文协议。每个 HTTP 请求和返回的每个 byte 都会在网络上明文传播，不管是 url,header 还是 body
 
 避免：客户端到服务器端端加密。
-通行做法：https--用SSL协议协商出的密钥加密明文的http数据。
+通行做法：https--用 SSL 协议协商出的密钥加密明文的 http 数据。
 
 ## 关于编码
-所谓编码确切地说应该是http中的url用什么编码，body用什么编码
 
-url:字符编码（大部分是utf8）+Percent Encode翻译为真正的url发给服务器
-body：Content-Type定义请求body的格式和字符
+所谓编码确切地说应该是 http 中的 url 用什么编码，body 用什么编码
 
-## 浏览器的POST需要发送两个请求吗？
-结论：发一次还是发N次，客户端可以很灵活的决定，不管怎么发都是符合HTTP协议的。
+url:字符编码（大部分是 utf8）+Percent Encode 翻译为真正的 url 发给服务器
+body：Content-Type 定义请求 body 的格式和字符
+
+## 浏览器的 POST 需要发送两个请求吗？
+
+结论：发一次还是发 N 次，客户端可以很灵活的决定，不管怎么发都是符合 HTTP 协议的。
 因此应该视为这种优化是一种实现细节。
 
 先发送请求头给服务器，让服务器进行校验，如果通过了，客户端再把剩下的数据发给服务器，拒绝，回复个错误，交互终止。避免浪费贷款传请求体。
 
 ### 到底什么算请求体
-HTTP协议角度，"请求头"就是Method + URL(含querystring) + Headers 再后面都是请求体
 
-对于HTTP代理
-- 支持转发规则，比如nginx先要解析请求头，拿到URL和Header才能决定怎么做（转发proxy_pass，重定向redirect，rewrite后重新判断……）
-- 需要用请求头的信息记录log。尽管请求体里的数据也可以记录，但一般只记录请求头的部分数据。
-- 如果代理规则不涉及到请求体，那么请求体就可以不用从内核态的page cache复制一份到用户态了，可以直接zero copy转发。这对于上传文件的场景极为有效。……
+HTTP 协议角度，"请求头"就是 Method + URL(含 querystring) + Headers 再后面都是请求体
 
-对于HTTP服务器
-- 可以通过请求头进行ACL控制，比如看看Athorization头里的数据是否能让认证通过
-- 可以做一些拦截，比如看到Content-Length里的数太大，或者Content-Type自己不支持，或者Accept要求的格式自己无法处理，就直接返回失败了。
-- 如果body的数据很大，利用Stream API，可以方便支持一块一块的处理数据，而不是一次性全部读取出来再操作，以至于占用大量内存。
+对于 HTTP 代理
 
-## 关于URL的长度
-GET数据有长度限制：其实是指”URL的长度限制“
-HTTP协议本身对URL没有任何限制，这些限制是客户端/浏览器和服务端共同决定的
+- 支持转发规则，比如 nginx 先要解析请求头，拿到 URL 和 Header 才能决定怎么做（转发 proxy_pass，重定向 redirect，rewrite 后重新判断……）
+- 需要用请求头的信息记录 log。尽管请求体里的数据也可以记录，但一般只记录请求头的部分数据。
+- 如果代理规则不涉及到请求体，那么请求体就可以不用从内核态的 page cache 复制一份到用户态了，可以直接 zero copy 转发。这对于上传文件的场景极为有效。……
 
-如果url过长，会分配更多的内存，并发量很高，可能会挤爆服务器；影响搜索引擎的的爬虫
+对于 HTTP 服务器
+
+- 可以通过请求头进行 ACL 控制，比如看看 Athorization 头里的数据是否能让认证通过
+- 可以做一些拦截，比如看到 Content-Length 里的数太大，或者 Content-Type 自己不支持，或者 Accept 要求的格式自己无法处理，就直接返回失败了。
+- 如果 body 的数据很大，利用 Stream API，可以方便支持一块一块的处理数据，而不是一次性全部读取出来再操作，以至于占用大量内存。
+
+## 关于 URL 的长度
+
+GET 数据有长度限制：其实是指”URL 的长度限制“
+HTTP 协议本身对 URL 没有任何限制，这些限制是客户端/浏览器和服务端共同决定的
+
+如果 url 过长，会分配更多的内存，并发量很高，可能会挤爆服务器；影响搜索引擎的的爬虫
 
 # 常见的状态码
-特定的HTTP请求是否已经完成
+
+特定的 HTTP 请求是否已经完成
 
 响应：信息响应（100-199）、成功响应（200-299）、重定向（300-399）、客户端错误（400-499）、服务端错误（500-599）
 
+2\*\* 成功：表明请求被正常处理了
+200 ok 表示从客户端发来的请求在服务器被正确处理
+204 No content 表示请求成功，但响应报文不含实体的主体部分
+206 Partial Content 进行范围请求成功
 
-2**  成功：表明请求被正常处理了
-200  ok 表示从客户端发来的请求在服务器被正确处理
-204  No content 表示请求成功，但响应报文不含实体的主体部分
-206  Partial Content 进行范围请求成功
+3\*\* 重定向（表明浏览器需要执行特殊处理
+301 moved permanently,永久性重定向，表示资源已被分配了新的 URL
+302 found 临时性重定型，表示资源临时被分配了新的 URL
+303 see other 表示资源存在着另一个 URL，应使用 GET 方法获取资源
+304 not modified，表示服务器允许访问资源，但请求未满足条件的情况（与重定向无关）
+307 temporary redirect 临时重定向，和 302 含义类似，但是期望客户端保持请求方法不变向新的地址发出请求
 
-3**  重定向（表明浏览器需要执行特殊处理
-301  moved permanently,永久性重定向，表示资源已被分配了新的URL
-302  found 临时性重定型，表示资源临时被分配了新的URL
-303  see other 表示资源存在着另一个URL，应使用GET方法获取资源
-304  not modified，表示服务器允许访问资源，但请求未满足条件的情况（与重定向无关）
-307  temporary redirect 临时重定向，和302含义类似，但是期望客户端保持请求方法不变向新的地址发出请求
-
-4XX客户端错误400bad request，请求报文存在语法错误
+4XX 客户端错误 400bad request，请求报文存在语法错误
 401unauthorized，表示发送的请求需要有通过 HTTP 认证的认证信息
 403forbidden，表示对请求资源的访问被服务器拒绝，可在实体主体部分返回原因描述
 404not found，表示在服务器上没有找到请求的资源
 
-5XX服务器错误500internal sever error，表示服务器端在执行请求时发生了错误
+5XX 服务器错误 500internal sever error，表示服务器端在执行请求时发生了错误
 501Not Implemented，表示服务器不支持当前请求所需要的某个功能
 503service unavailable，表明服务器暂时处于超负载或正在停机维护，无法处理请求
 
-
-你所知道的3xx状态码：https://jelly.jd.com/article/6006b1035b6c6a01506c8791 
+你所知道的 3xx 状态码：https://jelly.jd.com/article/6006b1035b6c6a01506c8791
 
 # 浏览器缓存
 
@@ -117,56 +127,50 @@ why：提高网站性能
 
 分类：强缓存 + 协商缓存
 
-  - 强缓存：满足强缓存命中规则，则不会再像服务器发送请求。
-    - 判断条件：根据`Response  header`中的Expire、Cache-control判断
-      - Expire：过期时间
-        缺点：为绝对时间，如果修改客户端时间，缓存就会失效
-      - Cache-control：`max-age`相对时间，资源缓存的最大时间
-        ```
-        Cache-Control:max-age=600   缓存的最大有效时间为600s  
-        ```
-        属性值：
-        no-cache：需要进行协商缓存，发送请求到服务器确认是否使用缓存。
-        no-store：禁止使用缓存，每一次都要重新请求数据。
-        public：默认设置。
-        private：不能被多用户共享。
-    - Cache-control 优先于大于Expire
+- 强缓存：满足强缓存命中规则，则不会再像服务器发送请求。
 
-  - 协商缓存：强缓存没有命中时，浏览器会发送一个请求到服务器，服务器根据请求头中的部分信息来判断是否命中缓存。如果命中，则返回304，告诉浏览器资源未更新，可使用本地缓存
-    - 判断条件：资源标识`If-Modify-Since`或`Etag`发送给服务器，未更新，则请求响应304+`Not Modify`
-      - Last-Modified，If-Modified-Since 第一次请求，服务费返回最后修改时间。再次请求时，请求携带的上一次修改的时间。
-        缺点：最小单位是秒。如果短时间内修改，Last-Modified并不会改变  
-              一个周期内又改回了原来的样子，我们认为是可以使用缓存的，但是Last-Modified不这么认为
-      - Etag，If-None-Match：由文件内容hash生成的，可以保证资源的唯一性，资源发生改变就会导致Etag发生变化
-    - 优先校验Etag，如果Etag相等就会继续比对Last-Modified
+  - 判断条件：根据`Response header`中的 Expire、Cache-control 判断
+    - Expire：过期时间
+      缺点：为绝对时间，如果修改客户端时间，缓存就会失效
+    - Cache-control：`max-age`相对时间，资源缓存的最大时间
+      ```
+      Cache-Control:max-age=600   缓存的最大有效时间为600s
+      ```
+      属性值：
+      no-cache：需要进行协商缓存，发送请求到服务器确认是否使用缓存。
+      no-store：禁止使用缓存，每一次都要重新请求数据。
+      public：默认设置。
+      private：不能被多用户共享。
+  - Cache-control 优先于大于 Expire
 
+- 协商缓存：强缓存没有命中时，浏览器会发送一个请求到服务器，服务器根据请求头中的部分信息来判断是否命中缓存。如果命中，则返回 304，告诉浏览器资源未更新，可使用本地缓存
+  - 判断条件：资源标识`If-Modify-Since`或`Etag`发送给服务器，未更新，则请求响应 304+`Not Modify`
+    - Last-Modified，If-Modified-Since 第一次请求，服务费返回最后修改时间。再次请求时，请求携带的上一次修改的时间。
+      缺点：最小单位是秒。如果短时间内修改，Last-Modified 并不会改变  
+       一个周期内又改回了原来的样子，我们认为是可以使用缓存的，但是 Last-Modified 不这么认为
+    - Etag，If-None-Match：由文件内容 hash 生成的，可以保证资源的唯一性，资源发生改变就会导致 Etag 发生变化
+  - 优先校验 Etag，如果 Etag 相等就会继续比对 Last-Modified
 
-  
+Size 中会出现的情况
 
-
-
-
-
-
-
-Size中会出现的情况
-- 200 from disk cache  磁盘缓存   不请求网络资源，在磁盘当中，一般非脚本会存在磁盘当中
-- 200 from memory cache 内存缓存  不请求网络资源，资源在内存当中，一般脚本、字体、图片会存在内存当中
-- 200 资源大小数值   从服务器下载最新资源
-- 304 报文大小       请求服务端发现资源没有更新，使用本地资源
+- 200 from disk cache 磁盘缓存 不请求网络资源，在磁盘当中，一般非脚本会存在磁盘当中
+- 200 from memory cache 内存缓存 不请求网络资源，资源在内存当中，一般脚本、字体、图片会存在内存当中
+- 200 资源大小数值 从服务器下载最新资源
+- 304 报文大小 请求服务端发现资源没有更新，使用本地资源
 
 用户行为对浏览器缓存的影响
+
 - 打开网页，地址栏输入地址： 查找 disk cache 中是否有匹配。如有则使用；如没有则发送网络请求。
 - 普通刷新 (F5)：因为 TAB 并没有关闭，因此 memory cache 是可用的，会被优先使用(如果匹配的话)。其次才是 disk cache。
 - 强制刷新 (Ctrl + F5)：浏览器不使用缓存，因此发送的请求头部均带有 Cache-control:no-cache(为了兼容，还带了 Pragma:no-cache),服务器直接返回 200 和最新内容。
 
-
 # HTTP keep-alive 长连接
+
 是什么？
-客户端和服务端的一个约定，开启keep-alive，则服务端在返回response后不关闭TCP连接；同样的，在接受完响应报文后，客户端也不关闭连接，发送下一个HTTP请求时会重用该连接
+客户端和服务端的一个约定，开启 keep-alive，则服务端在返回 response 后不关闭 TCP 连接；同样的，在接受完响应报文后，客户端也不关闭连接，发送下一个 HTTP 请求时会重用该连接
 解决了什么问题？
 保持长连接
 
-
 # TCP 三次握手 四次挥手
 
+报文格式---三次握手 四次挥手
