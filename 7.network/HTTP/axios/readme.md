@@ -138,3 +138,73 @@ store.dispatch('StopSouce')
 
 
 原理： 内部对XMLHttpRequest 进行了封装
+
+## XMLHttpRequest 对象
+
+用于与服务器交互。
+
+构造函数：
+XMLHttpRequest()
+
+属性：
+
+XMLHttpRequest.onreadystatechange 当 readyState 属性发生变化时，调用
+
+XMLHttpRequest.readyState 请求的状态码
+
+XMLHttpRequest.response 响应实体
+
+XMLHttpRequest.responseType  定义响应类型的枚举值 
+
+XMLHttpRequest.responseURL  经过序列化的相应URL
+ 
+XMLHttpRequest.responseXML  返回一个Document
+
+XMLHttpRequest.status 请求的响应状态
+
+XMLHttpRequest.statusText  "200 OK"
+
+XMLHttpRequest.timeout  最大请求时间 超时
+
+XMLHttpRequestEventTarget.ontimeout 请求超时时调用
+
+XMLHttpRequest.upload 上传进度
+
+XMLHttpRequest.withCredentials 
+
+
+方法：
+
+XMLHttpRequest.abort() 中止请求
+
+XMLHttpRequest.getAllResponseHeaders() 
+
+XMLHttpRequest.getResponseHeader()
+
+XMLHttpRequest.open() 初始化一个请求
+
+XMLHttpRequest.overrideMimeType() 覆写由服务器返回的 MIME 类型。
+ 
+XMLHttpRequest.send()  发送请求
+
+XMLHttpRequest.setRequestHeader()
+
+事件：
+
+abort： 当request被停止时触发
+
+error：当request错误时触发
+
+load：请求成功完成时触发
+
+loadend：当请求结束时触发
+
+loadstart：接收到相应数据时触发
+
+progress：当请求接收到更多数据时，周期性地触发
+
+timeout： 在预设时间内没有接收到响应时触发。
+
+## Axios原理
+
+###  
