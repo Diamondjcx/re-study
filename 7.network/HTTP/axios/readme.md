@@ -207,4 +207,197 @@ timeout： 在预设时间内没有接收到响应时触发。
 
 ## Axios原理
 
-###  
+### axios为何会有多种使用方式
+
+1、使用
+
+```javascript
+
+1、axios(option)
+axios({
+  url,
+  method,
+  headers,
+})
+
+2、axios(url[, option])
+axios(url, {
+  method,
+  headers,
+})
+
+3、axios[method](url[, option]) get、delete
+axios.get(url, {
+  headers,
+})
+
+4、axios[method](url[, data[, option]]) post、put
+axios.post(url, data, {
+  headers,
+})
+
+5、axios.request(option)
+axios.request({
+  url,
+  method,
+  headers,
+})
+
+```
+
+2、源码
+
+createInstance 方法 最终会返回一个Function，这个Function指向Axios.prototype.request,这个Function上面还有 Axios.prototype上的每个方法作为静态方法，且这些上下文的对象都指向同一个对象
+
+Axios.prototype.request 对请求做了封装
+
+### 用户配置的config是怎么起作用的
+
+
+
+config = utils.merge(defaults, {method: 'get'}, this.defaults, config);
+
+
+
+1、使用
+
+```javascript
+
+import axios from 'axios'
+
+// 第1种：直接修改Axios实例上defaults属性，主要用来设置通用配置
+axios.defaults[configName] = value;
+
+// 第2种：发起请求时最终会调用Axios.prototype.request方法，然后传入配置项，主要用来设置“个例”配置
+axios({
+  url,
+  method,
+  headers,
+})
+
+// 第3种：新建一个Axios实例，传入配置项，此处设置的是通用配置
+let newAxiosInstance = axios.create({
+  [configName]: value,
+})
+
+
+```
+
+2、源码
+Axios.prototype.request 会将三种参数进行一个merge
+
+优先级： request请求参数config > Axios 实例属性 this.defaults > {method: 'get'} > 默认配置对象 defaults
+
+### axios.prototype.request
+
+1、chain数组
+2、拦截器
+3、[dispatchRequest]
+
+chain数组是用来盛放拦截器方法和dispatchRequest方法的，
+通过promise从chain数组里按序取出回调函数逐一执行，最后将处理后的新的promise在Axios.prototype.request方法里返回出去，
+并将response或error传送出去，这就是Axios.prototype.request的使命了
+
+ 
+### 如何拦截请求响应并修改请求参数修改响应数据
+
+每个axios实例都有一个interceptors实例属性， interceptors对象上有两个属性request、response
+
+这两个属性都是一个InterceptorManager实例，而这个InterceptorManager构造函数就是用来管理拦截器的
+
+InterceptorManager构造函数:
+  用来实现拦截器的，这个构造函数原型上有3个方法：use、eject、forEach。 用来操作该构造函数的handlers实例属性的
+
+
+当我们通过axios.interceptors.request.use添加拦截器后axios内部又是怎么让这些拦截器能够在请求前、请求后拿到我们想要的数据的呢？
+
+头部加入 请求拦截器
+尾部加入 响应拦截器
+
+```javascript
+ // 注意：interceptor.fulfilled 或 interceptor.rejected 是可能为undefined
+  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    chain.unshift(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    chain.push(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  // 添加了拦截器后的chain数组大概会是这样的：
+  // [
+  //   requestFulfilledFn, requestRejectedFn, ..., 
+  //   dispatchRequest, undefined,
+  //   responseFulfilledFn, responseRejectedFn, ....,
+  // ]
+
+ // 只要chain数组长度不为0，就一直执行while循环
+  while (chain.length) {
+    // 每次执行while循环，从chain数组里按序取出两项，并分别作为promise.then方法的第一个和第二个参数
+
+    // 按照我们使用InterceptorManager.prototype.use添加拦截器的规则，正好每次添加的就是我们通过InterceptorManager.prototype.use方法添加的成功和失败回调
+
+    // 通过InterceptorManager.prototype.use往拦截器数组里添加拦截器时使用的数组的push方法，
+    // 对于请求拦截器，从拦截器数组按序读到后是通过unshift方法往chain数组数里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于请求拦截器，先添加的拦截器会后执行
+    // 对于响应拦截器，从拦截器数组按序读到后是通过push方法往chain数组里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于响应拦截器，添加的拦截器先执行
+
+    // 第一个请求拦截器的fulfilled函数会接收到promise对象初始化时传入的config对象，而请求拦截器又规定用户写的fulfilled函数必须返回一个config对象，所以通过promise实现链式调用时，每个请求拦截器的fulfilled函数都会接收到一个config对象
+
+    // 第一个响应拦截器的fulfilled函数会接受到dispatchRequest（也就是我们的请求方法）请求到的数据（也就是response对象）,而响应拦截器又规定用户写的fulfilled函数必须返回一个response对象，所以通过promise实现链式调用时，每个响应拦截器的fulfilled函数都会接收到一个response对象
+
+    // 任何一个拦截器的抛出的错误，都会被下一个拦截器的rejected函数收到，所以dispatchRequest抛出的错误才会被响应拦截器接收到。
+
+    // 因为axios是通过promise实现的链式调用，所以我们可以在拦截器里进行异步操作，而拦截器的执行顺序还是会按照我们上面说的顺序执行，也就是 dispatchRequest 方法一定会等待所有的请求拦截器执行完后再开始执行，响应拦截器一定会等待 dispatchRequest 执行完后再开始执行。
+
+    promise = promise.then(chain.shift(), chain.shift());
+
+  }
+
+```
+
+
+### dispatchrequest都做了哪些事
+
+dispatchRequest主要做了3件事：
+1，拿到config对象，对config进行传给http请求适配器前的最后处理；
+2，http请求适配器根据config配置，发起请求
+3，http请求适配器请求完成后，如果成功则根据header、data、和config.transformResponse（关于transformResponse，下面的数据转换器会进行讲解）拿到数据转换后的response，并return
+
+
+
+
+### axios是如何用promise搭起基于xhr的异步桥梁的
+
+
+1、用任何当时调用Axios 都会调用 Axios.prototype.request 方法，返回一个Promise对象
+
+2、Axios.prototype.request会调用dispatchRequest，dispatchRequest会调用xhrAdapter方法，返回一个Promise对象
+
+3、xhrAdapter内的XHR发送请求成功后会执行这个Promise对象的resolve方法,并将请求的数据传出去, 反之则执行reject方法，并将错误信息作为参数传出去
+
+4、dispatchRequest方法内，首先得到xhrAdapter方法返回的Promise对象,
+然后通过.then方法，对xhrAdapter返回的Promise对象的成功或失败结果再次加工，
+成功的话，则将处理后的response返回，
+失败的话，则返回一个状态为rejected的Promise对象
+
+
+### 数据转换器-转换请求与响应数据
+
+transformData
+
+
+### 如何取消已经发送的请求
+
+CancelToken
+
+config.cancelToken.promise.then(message => request.abort())
+
+在CancelToken外界，通过executor参数拿到对cancel方法的控制权， 这样当执行cancel方法时就可以改变实例的promise属性的状态为rejected， 从而执行request.abort()方法达到取消请求的目的
+
+
+### xsrf攻击
+
+设置 xsrfCookieName: 'XSRF-TOKEN' 是用作 xsrf token 的值的cookie的名称。
+axios会让你的每个请求都带一个从cookie中拿到的key，根据浏览器的同源策略，假冒的网站是拿不到cookie中的key的，后台可以因此辨别这个请求是否在用户假冒网站上的舞蹈输入，从而采取正确的策略。
+
+
