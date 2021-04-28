@@ -137,3 +137,41 @@ Vuex的getters则是借助于Vue的计算属性computed实现数据实时监听�
 actions 中的 commit 可以触发 mutations 中的方法。
 
 mutation 和 action 就相当于vue中的 method 
+
+# 源码
+
+
+
+
+
+Vue中的使用
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+// vue的插件，通过使用use 执行vuex的install方法，将vuex注入到vue中
+Vue.use(Vuex)
+// 创建vuex的实例对象
+const store = new Vuex.Store({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment (state) {
+      state.count++
+    }
+  }
+})
+```
+
+
+Vuex使用的rollup进行打包
+
+
+找到入口文件  src/index.js  
+
+找到install方法  src/store.js中
+
+创建实例对象 new Vuex.Store  src/store.js 中 创建Store构造函数方法
+
+resetStoreVM 核心原理
