@@ -212,6 +212,24 @@ const bfs = () => {
     3) 多学一些非js的东西， 比如shell / php等
     4) 做一些中间件，比如登录业务 / 内部的业务的RPC调用或特殊格式解析
 
-```
 
-```
+
+Webpack 写一个 markdown loader
+https://juejin.cn/post/6954598853593169951
+
+
+loader 与plugin
+https://github.com/yuanxin-alibaba/course
+
+plugin
+https://juejin.cn/post/6844904162405138445#heading-28
+
+
+善于使用package.json中的自定义命令
+
+
+
+vscode插件
+
+sneak mark
+https://github.com/hoc2019/vscode-sneak-mark

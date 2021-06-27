@@ -11,7 +11,7 @@
       // loader模块处理
       {
         test: /\.css$/,
-        use: "style=loader"
+        use: "style-loader"
       },
       {
         test: /\./
