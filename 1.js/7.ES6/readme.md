@@ -772,7 +772,7 @@ obj.foo = 'bar' // oops
 ```
  ### vue
 
- ## Object.assign
+## Object.assign
 
  将多个对象进行合并
 
