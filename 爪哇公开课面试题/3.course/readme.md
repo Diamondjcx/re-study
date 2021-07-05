@@ -11,7 +11,7 @@ node.js 原生实现
 
 ### 浏览器中 AMD
 
-# webpack 的原理与实战
+## webpack 的原理与实战
 
 ## JS 中的模块化
 
