@@ -1,12 +1,12 @@
-# 计算属性和watch
+# 计算属性和 watch
 
-## computed和watch
+## computed 和 watch
 
-computed是计算属性，类似于过滤器，对绑定到视图的数据进行处理，并监听变化进而执行对应的方法
+computed 是计算属性，类似于过滤器，对绑定到视图的数据进行处理，并监听变化进而执行对应的方法
 
 计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时才会重新求值。
 
-watch是一个侦听的动作，用来观察和相应Vue实例上数据变动。
+watch 是一个侦听的动作，用来观察和相应 Vue 实例上数据变动。
 
 ```javascript
 <div id="watch-example">
@@ -68,22 +68,20 @@ var watchExampleVM = new Vue({
 
 ```
 
-在这个示例中，允许我们执行异步操作（访问一个API），限制我们执行改操作的频率，并在我们得到最终结果前，设置中间状态。computed无法做到
+在这个示例中，允许我们执行异步操作（访问一个 API），限制我们执行改操作的频率，并在我们得到最终结果前，设置中间状态。computed 无法做到
 
-## computed和watch用法异同
+## computed 和 watch 用法异同
 
-同：都起到监听/依赖一个数据，并进行处理，vue对监听器的实现
+同：都起到监听/依赖一个数据，并进行处理，vue 对监听器的实现
 
-异：computed主要对于同步数据处理；watch主要用于观测某个值的变化去完成一段开销较大的复杂业务逻辑。优先使用computed
+异：computed 主要对于同步数据处理；watch 主要用于观测某个值的变化去完成一段开销较大的复杂业务逻辑。优先使用 computed
 
-## watch的高级用法
+## watch 的高级用法
 
-**（1）**handler 方法和immediate属性
-
+**（1）** handler 方法和 immediate 属性
 
 ```html
 <div id="demo">{{ fullName }}</div>
-
 ```
 
 ```javascript
@@ -92,16 +90,15 @@ var vm = new Vue({
   data: {
     firstName: 'Foo',
     lastName: 'Bar',
-    fullName: 'Foo Bar'
+    fullName: 'Foo Bar',
   },
   watch: {
     firstName: function (val) {
       console.log('第一次没有执行～')
       this.fullName = val + ' ' + this.lastName
-    }
-  }
+    },
+  },
 })
-
 ```
 
 第一次定义的时候立即执行
@@ -120,14 +117,13 @@ var vm = new Vue({
 
 ```
 
-**（2）**deep属性，开启深度监听
+**（2）** deep 属性，开启深度监听
 
 ```html
 <div id="app">
   <div>obj.a: {{obj.a}}</div>
-  <input type="text" v-model="obj.a">
+  <input type="text" v-model="obj.a" />
 </div>
-
 ```
 
 ```javascript
@@ -135,21 +131,21 @@ var vm = new Vue({
   el: '#app',
   data: {
     obj: {
-    	a: 1
-    }
+      a: 1,
+    },
   },
   watch: {
     obj: {
       handler(val) {
-       console.log('obj.a changed')  // 并没有打印
+        console.log('obj.a changed') // 并没有打印
       },
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 })
-
 ```
-设置deep属性，深度遍历
+
+设置 deep 属性，深度遍历
 
 ```javascript
   watch: {
@@ -163,6 +159,7 @@ var vm = new Vue({
   }
 
 ```
+
 使用字符串形式，直接监听某个属性
 
 ```javascript
@@ -180,4 +177,4 @@ var vm = new Vue({
 
 ## 总结
 
-都是vue对监听器的实现 计算属性本质上是一个computed watch，侦听属性本质上是一个user watch
+都是 vue 对监听器的实现 计算属性本质上是一个 computed watch，侦听属性本质上是一个 user watch

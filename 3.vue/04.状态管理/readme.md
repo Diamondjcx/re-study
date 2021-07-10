@@ -1,6 +1,6 @@
-### 状态管理vuex
+### 状态管理 vuex
 
-每一个Vuex里面有一个全局的Store，包含应用中的状态。单一的，一个应用仅会包含一个Store实例
+每一个 Vuex 里面有一个全局的 Store，包含应用中的状态。单一的，一个应用仅会包含一个 Store 实例
 
 ```javascript
 const app = new Vue({
@@ -12,19 +12,19 @@ const app = new Vue({
     <div class="app">
       <counter></counter>
     </div>
-  `
+  `,
 })
 const Counter = {
   template: `<div>{{ count }}</div>`,
   computed: {
-    count () {
+    count() {
       return this.$store.state.count
-    }
-  }
+    },
+  },
 }
 ```
 
-Mutation：Vuex通过提交mutation的方式修改store，有一个事件类型和一个回调函数  同步事务
+Mutation：Vuex 通过提交 mutation 的方式修改 store，有一个事件类型和一个回调函数 同步事务
 
 ```javascript
 const store = new Vuex.Store({
@@ -41,8 +41,8 @@ const store = new Vuex.Store({
 触发：store.commit('increment')
 ```
 
-Action：异步，里面执行异步操作，完事之后通过store.commit('increment')来触发mutation
-一个Action中可以触发多个mutation  类似一个灵活好用的中间件
+Action：异步，里面执行异步操作，完事之后通过 store.commit('increment')来触发 mutation
+一个 Action 中可以触发多个 mutation 类似一个灵活好用的中间件
 
 ```javascript
 	actions: {
@@ -58,13 +58,9 @@ Action：异步，里面执行异步操作，完事之后通过store.commit('inc
     }
 ```
 
-
-
-
-
-声明Store类，挂载Store
-Store具体实现：
-    创建响应式的state，保存mountations、actions和getters
-    实现commit根据用户传入type执行对应的mountation
-    实现dispatch根据用户传入type执行对应action，同事传递上下文
-    实现getters，按照getters定义对state做派生
+声明 Store 类，挂载 Store
+Store 具体实现：
+创建响应式的 state，保存 mountations、actions 和 getters
+实现 commit 根据用户传入 type 执行对应的 mountation
+实现 dispatch 根据用户传入 type 执行对应 action，同时传递上下文
+实现 getters，按照 getters 定义对 state 做派生
