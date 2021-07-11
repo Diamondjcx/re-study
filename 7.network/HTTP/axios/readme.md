@@ -1,48 +1,60 @@
 # what
 
-基于promise的HTTP库，可以用在浏览器和node.js中
+基于 promise 的 HTTP 库，可以用在浏览器和 node.js 中
 
-特性
-  从浏览器中创建XMLHttpRequests
-  从node js创建http请求
-  支持Promise API
-  拦截请求和响应
-  转换请求数据和响应数据
-  取消请求
-  自动转换JSON数据
-  客户端支持防御XSRF
+特性:
+从浏览器中创建 XMLHttpRequests
+
+从 node js 创建 http 请求
+
+支持 Promise API
+
+拦截请求和响应
+
+转换请求数据和响应数据
+
+取消请求
+
+自动转换 JSON 数据
+
+客户端支持防御 XSRF
+
 # how
 
 ## 封装请求方法
 
-### 1、创建axios实例
+### 1、创建 axios 实例
 
 ```javascript
 const service = axios.create({
   baseURL: process.env.VUE_APP_API,
-  timeout: 1000 * 60 * 10 // 请求超时时间
+  timeout: 1000 * 60 * 10, // 请求超时时间
 })
 ```
-### 2、拦截器
-1、请求前做什么
-    header中添加token
-    取消请求方法--- 
-      A--->B 页面跳转时，应取消A页面的数据请求
-      如果是上传大文件时，不想上传了，应当可以取消上传的数据请求
 
-    ```javascript
-    // request拦截器
+### 2、拦截器
+
+1、请求前做什么
+header 中添加 token
+
+取消请求方法---
+A--->B 页面跳转时，应取消 A 页面的数据请求
+如果是上传大文件时，不想上传了，应当可以取消上传的数据请求
+
+```javascript
+// request拦截器
+
 service.interceptors.request.use(
-  config => {
+  (config) => {
     if (getAuthorization()) {
-      config.headers['Authorization'] = getAuthorization() // 让每个请求携带自定义token 请根据实际情况自行修改
+      config.headers['Authorization'] = getAuthorization() // 让每个请求携带自定义 token 请根据实际情况自行修改
     }
-    // 取消请求通过store 进行设置
+    // 取消请求通过 store 进行设置
     store.dispatch('InitSourc')
-    config.cancelToken = store.getters.source.token  // 取消请求
+    config.cancelToken = store.getters.source.token // 取消请求
     return config
   },
-  error => {
+  (error) => {
     Promise.reject(error)
   }
 )
@@ -50,19 +62,19 @@ service.interceptors.request.use(
 
 2、请求之后做什么
 
-   请求回来进行错误处理 / 授权失败 跳转至登录页 
+请求回来进行错误处理 / 授权失败 跳转至登录页
 
-   ```javascript
-   // respone拦截器
+```javascript
+// respone拦截器
 service.interceptors.response.use(
-  response => {
+  (response) => {
     if (response.data.err_code === 1001) {
       removeAuthorization()
-      router.push({name: 'login'})
+      router.push({ name: 'login' })
     }
     return response.data
   },
-  error => {
+  (error) => {
     let err = ''
     if (error && error.response) {
       switch (error.response.status) {
@@ -80,9 +92,10 @@ service.interceptors.response.use(
   }
 )
 ```
+
 ### 3、取消请求
 
-写在store中
+写在 store 中
 
 ```javascript
 state: {
@@ -124,7 +137,6 @@ actions: {
 }
 ```
 
-
 使用：
 
 在请求拦截中注入取消请求
@@ -134,10 +146,10 @@ actions: {
 ```javascript
 store.dispatch('StopSouce')
 ```
+
 # why
 
-
-原理： 内部对XMLHttpRequest 进行了封装
+原理： 内部对 XMLHttpRequest 进行了封装
 
 ## XMLHttpRequest 对象
 
@@ -154,46 +166,45 @@ XMLHttpRequest.readyState 请求的状态码
 
 XMLHttpRequest.response 响应实体
 
-XMLHttpRequest.responseType  定义响应类型的枚举值 
+XMLHttpRequest.responseType 定义响应类型的枚举值
 
-XMLHttpRequest.responseURL  经过序列化的相应URL
- 
-XMLHttpRequest.responseXML  返回一个Document
+XMLHttpRequest.responseURL 经过序列化的相应 URL
+
+XMLHttpRequest.responseXML 返回一个 Document
 
 XMLHttpRequest.status 请求的响应状态
 
-XMLHttpRequest.statusText  "200 OK"
+XMLHttpRequest.statusText "200 OK"
 
-XMLHttpRequest.timeout  最大请求时间 超时
+XMLHttpRequest.timeout 最大请求时间 超时
 
 XMLHttpRequestEventTarget.ontimeout 请求超时时调用
 
 XMLHttpRequest.upload 上传进度
 
-XMLHttpRequest.withCredentials 
-
+XMLHttpRequest.withCredentials
 
 方法：
 
 XMLHttpRequest.abort() 中止请求
 
-XMLHttpRequest.getAllResponseHeaders() 
+XMLHttpRequest.getAllResponseHeaders()
 
 XMLHttpRequest.getResponseHeader()
 
 XMLHttpRequest.open() 初始化一个请求
 
 XMLHttpRequest.overrideMimeType() 覆写由服务器返回的 MIME 类型。
- 
-XMLHttpRequest.send()  发送请求
+
+XMLHttpRequest.send() 发送请求
 
 XMLHttpRequest.setRequestHeader()
 
 事件：
 
-abort： 当request被停止时触发
+abort： 当 request 被停止时触发
 
-error：当request错误时触发
+error：当 request 错误时触发
 
 load：请求成功完成时触发
 
@@ -205,9 +216,9 @@ progress：当请求接收到更多数据时，周期性地触发
 
 timeout： 在预设时间内没有接收到响应时触发。
 
-## Axios原理
+## Axios 原理
 
-### axios为何会有多种使用方式
+### axios 为何会有多种使用方式
 
 1、使用
 
@@ -247,26 +258,21 @@ axios.request({
 
 2、源码
 
-createInstance 方法 最终会返回一个Function，这个Function指向Axios.prototype.request,这个Function上面还有 Axios.prototype上的每个方法作为静态方法，且这些上下文的对象都指向同一个对象
+createInstance 方法 最终会返回一个 Function，这个 Function 指向 Axios.prototype.request,这个 Function 上面还有 Axios.prototype 上的每个方法作为静态方法，且这些上下文的对象都指向同一个对象
 
 Axios.prototype.request 对请求做了封装
 
-### 用户配置的config是怎么起作用的
-
-
+### 用户配置的 config 是怎么起作用的
 
 config = utils.merge(defaults, {method: 'get'}, this.defaults, config);
-
-
 
 1、使用
 
 ```javascript
-
 import axios from 'axios'
 
 // 第1种：直接修改Axios实例上defaults属性，主要用来设置通用配置
-axios.defaults[configName] = value;
+axios.defaults[configName] = value
 
 // 第2种：发起请求时最终会调用Axios.prototype.request方法，然后传入配置项，主要用来设置“个例”配置
 axios({
@@ -279,112 +285,103 @@ axios({
 let newAxiosInstance = axios.create({
   [configName]: value,
 })
-
-
 ```
 
 2、源码
-Axios.prototype.request 会将三种参数进行一个merge
+Axios.prototype.request 会将三种参数进行一个 merge
 
-优先级： request请求参数config > Axios 实例属性 this.defaults > {method: 'get'} > 默认配置对象 defaults
+优先级： request 请求参数 config > Axios 实例属性 this.defaults > {method: 'get'} > 默认配置对象 defaults
 
 ### axios.prototype.request
 
-1、chain数组
+1、chain 数组
 2、拦截器
 3、[dispatchRequest]
 
-chain数组是用来盛放拦截器方法和dispatchRequest方法的，
-通过promise从chain数组里按序取出回调函数逐一执行，最后将处理后的新的promise在Axios.prototype.request方法里返回出去，
-并将response或error传送出去，这就是Axios.prototype.request的使命了
+chain 数组是用来盛放拦截器方法和 dispatchRequest 方法的，
+通过 promise 从 chain 数组里按序取出回调函数逐一执行，最后将处理后的新的 promise 在 Axios.prototype.request 方法里返回出去，
+并将 response 或 error 传送出去，这就是 Axios.prototype.request 的使命了
 
- 
 ### 如何拦截请求响应并修改请求参数修改响应数据
 
-每个axios实例都有一个interceptors实例属性， interceptors对象上有两个属性request、response
+每个 axios 实例都有一个 interceptors 实例属性， interceptors 对象上有两个属性 request、response
 
-这两个属性都是一个InterceptorManager实例，而这个InterceptorManager构造函数就是用来管理拦截器的
+这两个属性都是一个 InterceptorManager 实例，而这个 InterceptorManager 构造函数就是用来管理拦截器的
 
-InterceptorManager构造函数:
-  用来实现拦截器的，这个构造函数原型上有3个方法：use、eject、forEach。 用来操作该构造函数的handlers实例属性的
+InterceptorManager 构造函数:
+用来实现拦截器的，这个构造函数原型上有 3 个方法：use、eject、forEach。 用来操作该构造函数的 handlers 实例属性的
 
-
-当我们通过axios.interceptors.request.use添加拦截器后axios内部又是怎么让这些拦截器能够在请求前、请求后拿到我们想要的数据的呢？
+当我们通过 axios.interceptors.request.use 添加拦截器后 axios 内部又是怎么让这些拦截器能够在请求前、请求后拿到我们想要的数据的呢？
 
 头部加入 请求拦截器
 尾部加入 响应拦截器
 
 ```javascript
- // 注意：interceptor.fulfilled 或 interceptor.rejected 是可能为undefined
-  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-    chain.unshift(interceptor.fulfilled, interceptor.rejected);
-  });
+// 注意：interceptor.fulfilled 或 interceptor.rejected 是可能为undefined
+this.interceptors.request.forEach(function unshiftRequestInterceptors(
+  interceptor
+) {
+  chain.unshift(interceptor.fulfilled, interceptor.rejected)
+})
 
-  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-    chain.push(interceptor.fulfilled, interceptor.rejected);
-  });
+this.interceptors.response.forEach(function pushResponseInterceptors(
+  interceptor
+) {
+  chain.push(interceptor.fulfilled, interceptor.rejected)
+})
 
-  // 添加了拦截器后的chain数组大概会是这样的：
-  // [
-  //   requestFulfilledFn, requestRejectedFn, ..., 
-  //   dispatchRequest, undefined,
-  //   responseFulfilledFn, responseRejectedFn, ....,
-  // ]
+// 添加了拦截器后的chain数组大概会是这样的：
+// [
+//   requestFulfilledFn, requestRejectedFn, ...,
+//   dispatchRequest, undefined,
+//   responseFulfilledFn, responseRejectedFn, ....,
+// ]
 
- // 只要chain数组长度不为0，就一直执行while循环
-  while (chain.length) {
-    // 每次执行while循环，从chain数组里按序取出两项，并分别作为promise.then方法的第一个和第二个参数
+// 只要chain数组长度不为0，就一直执行while循环
+while (chain.length) {
+  // 每次执行while循环，从chain数组里按序取出两项，并分别作为promise.then方法的第一个和第二个参数
 
-    // 按照我们使用InterceptorManager.prototype.use添加拦截器的规则，正好每次添加的就是我们通过InterceptorManager.prototype.use方法添加的成功和失败回调
+  // 按照我们使用InterceptorManager.prototype.use添加拦截器的规则，正好每次添加的就是我们通过InterceptorManager.prototype.use方法添加的成功和失败回调
 
-    // 通过InterceptorManager.prototype.use往拦截器数组里添加拦截器时使用的数组的push方法，
-    // 对于请求拦截器，从拦截器数组按序读到后是通过unshift方法往chain数组数里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于请求拦截器，先添加的拦截器会后执行
-    // 对于响应拦截器，从拦截器数组按序读到后是通过push方法往chain数组里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于响应拦截器，添加的拦截器先执行
+  // 通过InterceptorManager.prototype.use往拦截器数组里添加拦截器时使用的数组的push方法，
+  // 对于请求拦截器，从拦截器数组按序读到后是通过unshift方法往chain数组数里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于请求拦截器，先添加的拦截器会后执行
+  // 对于响应拦截器，从拦截器数组按序读到后是通过push方法往chain数组里添加的，又通过shift方法从chain数组里取出的，所以得出结论：对于响应拦截器，添加的拦截器先执行
 
-    // 第一个请求拦截器的fulfilled函数会接收到promise对象初始化时传入的config对象，而请求拦截器又规定用户写的fulfilled函数必须返回一个config对象，所以通过promise实现链式调用时，每个请求拦截器的fulfilled函数都会接收到一个config对象
+  // 第一个请求拦截器的fulfilled函数会接收到promise对象初始化时传入的config对象，而请求拦截器又规定用户写的fulfilled函数必须返回一个config对象，所以通过promise实现链式调用时，每个请求拦截器的fulfilled函数都会接收到一个config对象
 
-    // 第一个响应拦截器的fulfilled函数会接受到dispatchRequest（也就是我们的请求方法）请求到的数据（也就是response对象）,而响应拦截器又规定用户写的fulfilled函数必须返回一个response对象，所以通过promise实现链式调用时，每个响应拦截器的fulfilled函数都会接收到一个response对象
+  // 第一个响应拦截器的fulfilled函数会接受到dispatchRequest（也就是我们的请求方法）请求到的数据（也就是response对象）,而响应拦截器又规定用户写的fulfilled函数必须返回一个response对象，所以通过promise实现链式调用时，每个响应拦截器的fulfilled函数都会接收到一个response对象
 
-    // 任何一个拦截器的抛出的错误，都会被下一个拦截器的rejected函数收到，所以dispatchRequest抛出的错误才会被响应拦截器接收到。
+  // 任何一个拦截器的抛出的错误，都会被下一个拦截器的rejected函数收到，所以dispatchRequest抛出的错误才会被响应拦截器接收到。
 
-    // 因为axios是通过promise实现的链式调用，所以我们可以在拦截器里进行异步操作，而拦截器的执行顺序还是会按照我们上面说的顺序执行，也就是 dispatchRequest 方法一定会等待所有的请求拦截器执行完后再开始执行，响应拦截器一定会等待 dispatchRequest 执行完后再开始执行。
+  // 因为axios是通过promise实现的链式调用，所以我们可以在拦截器里进行异步操作，而拦截器的执行顺序还是会按照我们上面说的顺序执行，也就是 dispatchRequest 方法一定会等待所有的请求拦截器执行完后再开始执行，响应拦截器一定会等待 dispatchRequest 执行完后再开始执行。
 
-    promise = promise.then(chain.shift(), chain.shift());
-
-  }
-
+  promise = promise.then(chain.shift(), chain.shift())
+}
 ```
 
+### dispatchrequest 都做了哪些事
 
-### dispatchrequest都做了哪些事
+dispatchRequest 主要做了 3 件事：
+1，拿到 config 对象，对 config 进行传给 http 请求适配器前的最后处理；
+2，http 请求适配器根据 config 配置，发起请求
+3，http 请求适配器请求完成后，如果成功则根据 header、data、和 config.transformResponse（关于 transformResponse，下面的数据转换器会进行讲解）拿到数据转换后的 response，并 return
 
-dispatchRequest主要做了3件事：
-1，拿到config对象，对config进行传给http请求适配器前的最后处理；
-2，http请求适配器根据config配置，发起请求
-3，http请求适配器请求完成后，如果成功则根据header、data、和config.transformResponse（关于transformResponse，下面的数据转换器会进行讲解）拿到数据转换后的response，并return
+### axios 是如何用 promise 搭起基于 xhr 的异步桥梁的
 
+1、用任何当时调用 Axios 都会调用 Axios.prototype.request 方法，返回一个 Promise 对象
 
+2、Axios.prototype.request 会调用 dispatchRequest，dispatchRequest 会调用 xhrAdapter 方法，返回一个 Promise 对象
 
+3、xhrAdapter 内的 XHR 发送请求成功后会执行这个 Promise 对象的 resolve 方法,并将请求的数据传出去, 反之则执行 reject 方法，并将错误信息作为参数传出去
 
-### axios是如何用promise搭起基于xhr的异步桥梁的
-
-
-1、用任何当时调用Axios 都会调用 Axios.prototype.request 方法，返回一个Promise对象
-
-2、Axios.prototype.request会调用dispatchRequest，dispatchRequest会调用xhrAdapter方法，返回一个Promise对象
-
-3、xhrAdapter内的XHR发送请求成功后会执行这个Promise对象的resolve方法,并将请求的数据传出去, 反之则执行reject方法，并将错误信息作为参数传出去
-
-4、dispatchRequest方法内，首先得到xhrAdapter方法返回的Promise对象,
-然后通过.then方法，对xhrAdapter返回的Promise对象的成功或失败结果再次加工，
-成功的话，则将处理后的response返回，
-失败的话，则返回一个状态为rejected的Promise对象
-
+4、dispatchRequest 方法内，首先得到 xhrAdapter 方法返回的 Promise 对象,
+然后通过.then 方法，对 xhrAdapter 返回的 Promise 对象的成功或失败结果再次加工，
+成功的话，则将处理后的 response 返回，
+失败的话，则返回一个状态为 rejected 的 Promise 对象
 
 ### 数据转换器-转换请求与响应数据
 
 transformData
-
 
 ### 如何取消已经发送的请求
 
@@ -392,12 +389,9 @@ CancelToken
 
 config.cancelToken.promise.then(message => request.abort())
 
-在CancelToken外界，通过executor参数拿到对cancel方法的控制权， 这样当执行cancel方法时就可以改变实例的promise属性的状态为rejected， 从而执行request.abort()方法达到取消请求的目的
+在 CancelToken 外界，通过 executor 参数拿到对 cancel 方法的控制权， 这样当执行 cancel 方法时就可以改变实例的 promise 属性的状态为 rejected， 从而执行 request.abort()方法达到取消请求的目的
 
+### xsrf 攻击
 
-### xsrf攻击
-
-设置 xsrfCookieName: 'XSRF-TOKEN' 是用作 xsrf token 的值的cookie的名称。
-axios会让你的每个请求都带一个从cookie中拿到的key，根据浏览器的同源策略，假冒的网站是拿不到cookie中的key的，后台可以因此辨别这个请求是否在用户假冒网站上的舞蹈输入，从而采取正确的策略。
-
-
+设置 xsrfCookieName: 'XSRF-TOKEN' 是用作 xsrf token 的值的 cookie 的名称。
+axios 会让你的每个请求都带一个从 cookie 中拿到的 key，根据浏览器的同源策略，假冒的网站是拿不到 cookie 中的 key 的，后台可以因此辨别这个请求是否在用户假冒网站上的舞蹈输入，从而采取正确的策略。
