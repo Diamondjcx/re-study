@@ -488,7 +488,7 @@ console.log(originObj) // {a:1,b:{bb:2}}
 
 2、JavaScript 中数组和对象自带的拷贝方法都是“首层浅拷贝”；
 
-3、JSON.stringify 实现的是深拷贝，但是对目标对象有要求；
+3、JSON.stringify 实现的是深拷贝，但是对目标对象有要求；null function symbol
 
 4、若想真正意义上的深拷贝，请递归。
 

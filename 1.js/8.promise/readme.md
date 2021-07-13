@@ -72,7 +72,7 @@ let p = new Promise((resolve, reject) => {
     if (num <= 5) {
       resolve(num)
     } else {
-      rehect('数字太大了')
+      rejected('数字太大了')
     }
   }, 2000)
 })

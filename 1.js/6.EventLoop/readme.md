@@ -339,6 +339,8 @@ new Promise(function executor(resolve) {
   console.log(4);
 });
 console.log(5);
+
+// 2\3\5\4\1
 ```
 
 
@@ -351,4 +353,6 @@ setTimeout(() => {
 setTimeout(() => {
   Promise.resolve(console.log(2));
 }, 3000)
+
+// 1\2
 ```

@@ -128,9 +128,9 @@ test.call(null, 'test') // window
 
 如果第一个参数为 null 和 undefined，this 会自动指向全局对象（浏览器中就是 window 对象）
 
-**（2）**`arg1, arg2, ...`指定的参数列表
+**（2）** `arg1, arg2, ...`指定的参数列表
 
-**（3）**返回值
+**（3）** 返回值
 
 返回值是调用的方法的返回值，若该方法没有返回值，则返回 undefined
 
@@ -346,13 +346,13 @@ function getName() {
 }
 
 //请写出以下输出结果：
-Foo.getName()
-getName()
-Foo().getName()
-getName()
-new Foo.getName()
-new Foo().getName()
-new new Foo().getName()
+Foo.getName() // 2
+getName() // 4
+Foo().getName() // 1
+getName() // 1
+new Foo.getName() // 2
+new Foo().getName() // 3
+new new Foo().getName() // 3
 ```
 
 ```javascript
