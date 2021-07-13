@@ -14,7 +14,9 @@ Profile Panel :可能进行优化的点
 Lighthouse CI
 
 3、针对性优化
-3.1 优化延迟
+ 
+ 3.1 优化延迟
+ 
 CND 将 content 分布到各个地方
 
 Cache：减少客户端与服务端的交互
@@ -24,7 +26,8 @@ Cache：减少客户端与服务端的交互
 使用 hash tag
 Etag 也是有性能消耗的
 
-3.2 优化带宽使用，谷歌浏览器设置网络，进行测试
+ 3.2 优化带宽使用，谷歌浏览器设置网络，进行测试
+
 延迟加载
 
 - 懒加载 lazy-load offscreen images 在屏幕中才去加载
