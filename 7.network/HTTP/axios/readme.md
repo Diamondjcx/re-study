@@ -1,3 +1,5 @@
+https://gitee.com/hongjilin/hongs-study-notes/tree/master/%E7%BC%96%E7%A8%8B_%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Ajax%E3%80%81Axios%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0#%E4%B8%80axios%E7%9A%84%E7%90%86%E8%A7%A3%E4%B8%8E%E4%BD%BF%E7%94%A8
+
 # what
 
 基于 promise 的 HTTP 库，可以用在浏览器和 node.js 中
@@ -94,6 +96,24 @@ service.interceptors.response.use(
 ```
 
 ### 3、取消请求
+
+场景：
+点击完请求之后想要取消 重复点击一个按钮的时候，
+只执行最后一次请求
+
+1、添加配置对象的属性
+cancelToken: new axios.CancelToken(function(c) {
+cancel = c
+})
+
+2、声明全局变量
+let cancel = null
+
+// 检测上一次的请求是否完成
+if (cancel !== null) {
+// 取消上一次的请求
+cancel()
+}
 
 写在 store 中
 
