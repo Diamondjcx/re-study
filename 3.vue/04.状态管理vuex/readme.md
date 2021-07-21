@@ -64,3 +64,5 @@ Store 具体实现：
 实现 commit 根据用户传入 type 执行对应的 mountation
 实现 dispatch 根据用户传入 type 执行对应 action，同时传递上下文
 实现 getters，按照 getters 定义对 state 做派生
+
+Vuex 实现了一个单向数据流，在全局拥有一个 State 存放数据，当组件要更改 State 中的数据时，必须通过 Mutation 提交修改信息， Mutation 同时提供了订阅者模式供外部插件调用获取 State 数据的更新。而当所有异步操作(常见于调用后端接口异步获取更新数据)或批量的同步操作需要走 Action ，但 Action 也是无法直接修改 State 的，还是需要通过 Mutation 来修改 State 的数据。最后，根据 State 的变化，渲染到视图上。

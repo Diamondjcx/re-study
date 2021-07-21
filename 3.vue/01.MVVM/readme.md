@@ -1,7 +1,13 @@
 # mvvm
-vue实现数据双向绑定：数据劫持+发布订阅，通过Object.defineProperty来劫持各个属性的getter、setter，在数据变动的时候，发布消息给订阅者，触发相应的监听回调。
 
-**(1)** 实现一个observer，通过Object.defineProperty来劫持各个属性的getter、setter
-**(2)** 实现一个指令解析器compile，对每个元素的节点进行扫描和解析，根据指令模板替换数据，以及绑定对应的更新函数
-**(3)** 实现一个watcher，作为observer和compile的桥梁，能够订阅每个属性变动的通知，执行指令绑定的相应的回调函数，从而更新视图
-**(4)** mvvm入口函数
+vue 实现数据双向绑定：数据劫持+发布订阅，通过 Object.defineProperty 来劫持各个属性的 getter、setter，在数据变动的时候，发布消息给订阅者，触发相应的监听回调。
+
+**(1)** 实现一个 observer，通过 Object.defineProperty 来劫持各个属性的 getter、setter
+**(2)** 实现一个指令解析器 compile，对每个元素的节点进行扫描和解析，根据指令模板替换数据，以及绑定对应的更新函数
+**(3)** 实现一个 watcher，作为 observer 和 compile 的桥梁，能够订阅每个属性变动的通知，执行指令绑定的相应的回调函数，从而更新视图
+**(4)** mvvm 入口函数
+
+1. 这三者都是框架模式，它们设计的目标都是为了解决 Model 和 View 的耦合问题。
+2. MVC 模式出现较早主要应用在后端，如 Spring MVC、ASP.NET MVC 等，在前端领域的早期也有应用，如 Backbone.js。它的优点是分层清晰，缺点是数据流混乱，灵活性带来的维护性问题。
+3. MVP 模式在是 MVC 的进化形式，Presenter 作为中间层负责 MV 通信，解决了两者耦合问题，但 P 层 过于臃肿会导致维护问题。
+4. MVVM 模式在前端领域有广泛应用，它不仅解决 MV 耦合问题，还同时解决了维护两者映射关系的 大量繁杂代码和 DOM 操作代码，在提高开发效率、可读性同时还保持了优越的性能表现。
