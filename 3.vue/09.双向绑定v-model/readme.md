@@ -1,3 +1,27 @@
+
+双向绑定：v-model  实现表单输入和应用状态之间的双向绑定
+
+button
+checkbox
+file
+hidden
+image
+password
+radio
+reset
+submit
+text
+
+
+
+text
+select
+checkbox
+file 
+radio
+
+
+
 input 的 oninput 事件和 value
 
 ```html
