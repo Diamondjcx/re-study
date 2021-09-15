@@ -170,6 +170,43 @@ Promise.race([requestImg(), timeout()])
   })
 ```
 
+
+
+
+## 中断promise
+
+### 中断promise 链
+
+就是在某个 then/catch 执行之后，不想让后续的链式调用继续执行了，即
+```js
+somePromise
+  .then(() => {})
+  .then(() => {
+    // 终止 Promise 链，让下面的 then、catch 和 finally 都不执行
+  })
+  .then(() => console.log('then'))
+  .catch(() => console.log('catch'))
+  .finally(() => console.log('finally'))
+
+```
+
+答案就是在 then/catch 的最后一行返回一个永远 pending 的 promise 即可：
+
+```js
+return new Promise((resolve, reject) => {})
+
+```
+return new Promise((resolve, reject) => {})
+
+
+### 中断promise
+
+抛出一个reject状态
+
+
+promise 被中断了，但是 promise 并没有终止，网络请求依然可能返回
+
+
 ## 实现自己的promise
 
 构造函数，使用类的方式
@@ -204,3 +241,5 @@ class Promise {
   }
 }
 ```
+
+

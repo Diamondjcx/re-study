@@ -25,7 +25,7 @@
     Cache-Control:max-age=600   缓存的最大有效时间为600s
     ```
     1. Cache-Control: public可以被所有⽤户缓存，包括终端和CDN等中间代理服务器 
-    2. Cache-Control: private只能被终端浏览器缓存，不允许中继缓存服务器进⾏缓存 
+    2. Cache-Control: private只能被终端浏览器缓存，不允许中间缓存服务器进⾏缓存 
     3. Cache-Control: no-cache,先缓存本地，但是在命中缓存之后必须与服务器验证缓存的新鲜度才能使⽤ 
     4. Cache-Control: no-store，不会产⽣任何缓存
   
