@@ -86,19 +86,19 @@ var watchExampleVM = new Vue({
 
 ```javascript
 var vm = new Vue({
-  el: '#demo',
+  el: "#demo",
   data: {
-    firstName: 'Foo',
-    lastName: 'Bar',
-    fullName: 'Foo Bar',
+    firstName: "Foo",
+    lastName: "Bar",
+    fullName: "Foo Bar",
   },
   watch: {
     firstName: function (val) {
-      console.log('第一次没有执行～')
-      this.fullName = val + ' ' + this.lastName
+      console.log("第一次没有执行～");
+      this.fullName = val + " " + this.lastName;
     },
   },
-})
+});
 ```
 
 第一次定义的时候立即执行
@@ -128,7 +128,7 @@ var vm = new Vue({
 
 ```javascript
 var vm = new Vue({
-  el: '#app',
+  el: "#app",
   data: {
     obj: {
       a: 1,
@@ -137,12 +137,12 @@ var vm = new Vue({
   watch: {
     obj: {
       handler(val) {
-        console.log('obj.a changed') // 并没有打印
+        console.log("obj.a changed"); // 并没有打印
       },
       immediate: true,
     },
   },
-})
+});
 ```
 
 设置 deep 属性，深度遍历
@@ -178,3 +178,28 @@ var vm = new Vue({
 ## 总结
 
 都是 vue 对监听器的实现 计算属性本质上是一个 computed watch，侦听属性本质上是一个 user watch
+
+###
+
+相同点：
+
+1. 基于 vue 的依赖收集机制
+2. 都是被依赖的变化触发，进行改变进而进行处理计算
+
+不同点：
+
+1. 入和出
+   computed: 多入单出 —— 多个值变化，组成一个值的变化
+   watch: 单入多出 —— 单个值的变化，进而影响一系列的状态变更
+
+2. 性能
+   computed: 会自动 diff 依赖，若依赖没有变化，会改从缓存中读取当前计算值
+   watch: 无论监听值变化与否，都会执行回调
+
+3. 写法上
+   computed: 必须有 return 返回值
+   watch: 不一定
+
+4. 时机上
+   computed: 从首次生成赋值，就开始计算运行了
+   watch: 首次不会运行，除非——immediate：true

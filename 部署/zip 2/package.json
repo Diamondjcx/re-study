@@ -1,0 +1,35 @@
+{
+  "name": "deploy-and-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "babel": "babel 1_babel/src/*.js --out-file ./1_babel/dist/bundle.js",
+    "babelAll": "babel 1_babel/src/*.js --out-dir ./1_babel/dist",
+    "bro": "browserify 2_bro/src/*.js > ./2_bro/dist/bundle.js",
+    "browserify": "browserify 2_bro/src/*.js -t babelify --outfile ./2_bro/dist/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/j0kerrr/deploy-and-test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "@types/node": "^17.0.41",
+    "@vue/compiler-sfc": "^3.2.25",
+    "antd": "^4.21.0",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "core-js": "3",
+    "esmify": "^2.1.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-bro": "^2.0.0",
+    "gulp-concat": "^2.6.1"
+  }
+}

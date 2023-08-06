@@ -1,11 +1,17 @@
 # mvvm
 
+Model-View-ViewModel
+数据会绑定在 viewModel 层并自动将数据渲染到页面中
+视图变化时，会通知 viewModel 层更新数据
+
 vue 实现数据双向绑定：数据劫持+发布订阅，通过 Object.defineProperty 来劫持各个属性的 getter、setter，在数据变动的时候，发布消息给订阅者，触发相应的监听回调。
 
 **(1)** 实现一个 observer，通过 Object.defineProperty 来劫持各个属性的 getter、setter
 **(2)** 实现一个指令解析器 compile，对每个元素的节点进行扫描和解析，根据指令模板替换数据，以及绑定对应的更新函数
 **(3)** 实现一个 watcher，作为 observer 和 compile 的桥梁，能够订阅每个属性变动的通知，执行指令绑定的相应的回调函数，从而更新视图
 **(4)** mvvm 入口函数
+
+## mvc、mvp、mvvm
 
 1. 这三者都是框架模式，它们设计的目标都是为了解决 Model 和 View 的耦合问题。
 2. MVC 模式出现较早主要应用在后端，如 Spring MVC、ASP.NET MVC 等，在前端领域的早期也有应用，如 Backbone.js。它的优点是分层清晰，缺点是数据流混乱，灵活性带来的维护性问题。

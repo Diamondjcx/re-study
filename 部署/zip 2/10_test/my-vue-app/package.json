@@ -1,0 +1,30 @@
+{
+  "name": "my-vue-app",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "@types/jest": "^28.1.1",
+    "@vue/compiler-sfc": "^3.2.25",
+    "@vue/test-utils": "^2.0.0",
+    "babel-jest": "^28.1.1",
+    "jest": "^28.1.1",
+    "jest-environment-jsdom": "^28.1.1",
+    "jest-environment-jsdom-global": "^3.1.2",
+    "jsdom": "^19.0.0",
+    "karma": "^6.3.20",
+    "vue": "^3.2.25",
+    "vue-jest": "^3.0.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.3",
+    "vite": "^2.9.12"
+  }
+}

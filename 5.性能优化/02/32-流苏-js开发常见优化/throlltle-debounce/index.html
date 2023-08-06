@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button id="btn1">btn1</button>
+<button id="btn2">btn1</button>
+</body>
+<script>
+    // 延迟执行
+    const debounce = (fn, time) => {
+        let timeout = null
+        return function (){
+            clearTimeout(timeout)
+            timeout = setTimeout(() => {
+                fn.apply(this, arguments)
+            }, time)
+        }
+    }
+    const input = () => console.log('111')
+    document.getElementById("btn1").onclick = debounce(input, 1000)
+
+    const throttle = (fn, time) => {
+        let flag = true
+        return function (){
+            if(!flag){
+                return
+            }
+            flag = false
+            fn.apply(this, arguments)
+            setTimeout(() =>{
+              flag = true
+            },time)
+        }
+    }
+    const input2 = () => console.log('222')
+    document.getElementById("btn2").onclick = throttle(input2, 1000)
+</script>
+</html>

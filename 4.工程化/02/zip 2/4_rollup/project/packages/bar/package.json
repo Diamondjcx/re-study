@@ -1,0 +1,19 @@
+{
+  "name": "bar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/bar.cjs.js",
+  "module": "dist/bar.esm-bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "buildOptions": {
+    "name": "rollupProjectBar",
+    "formats": [
+      "esm-bundler"
+    ]
+  }
+}

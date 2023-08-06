@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input value=""  id="inp"><button id="btn">计算</button>
+</body>
+<script type="text/javascript">
+    const worker = new Worker('./worker.js');
+    document.getElementById('btn').onclick=function (){
+        let inp = document.getElementById('inp')
+        let value = inp.value
+
+        worker.postMessage(value);
+    }
+
+
+
+	worker.onmessage = e => {
+        console.log(e,'e')
+      document.body.append(e.data)
+	};
+	worker.onerror = e => {
+		console.log(e)
+	};
+
+</script>
+</html>

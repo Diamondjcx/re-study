@@ -6,3 +6,7 @@ vue 中的 key
 2. 另外，若不设置 key 还可能在列表更新时引发一些隐蔽的 bug（应该变化而没有变化）
 3. vue 中在使用相同标签名元素的过渡切换时，也会使用到 key 属性，其目的也是为了让 vue 可以
    区分它们，否则 vue 只会替换其内部属性而不会触发过渡效果。（transtion）
+
+## 常见问题：index 做 key、随机数做 key
+
+https://github.com/sl1673495/blogs/issues/39
