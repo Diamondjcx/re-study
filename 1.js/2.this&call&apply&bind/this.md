@@ -1,356 +1,456 @@
-# 面试官：谈谈this对象的理解
+why：this 提供一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计得更加简洁并且易于复用。如果么有 this，只能显示的传递上下文对象，会让代码变得越来越乱
 
- ![](https://static.vue-js.com/46c820d0-74b7-11eb-85f6-6fac77c0c9b3.png)
+当一个函数被调用时，会创建一个活动记录（执行上下文）。这个记录会包含函数在哪里被调用（调用栈）、函数调用方式、传递参数等。this 就是这个记录中的一个属性，会在函数执行的过程中用到
 
+# 总结
 
+如果要判断一个运行中函数的 this 绑定， 就需要找到这个函数的直接调用位置。 找到之后
+就可以顺序应用下面这四条规则来判断 this 的绑定对象。
 
-## 一、定义
+**（1）** new 调用：绑定到新创建的对象，注意：显示 return 函数或对象，返回值不是新创建的对象，而是显式返回的函数或对象。
+**（2）** call 或者 apply（ 或者 bind） 调用：严格模式下，绑定到指定的第一个参数。非严格模式下，null 和 undefined，指向全局对象（浏览器中是 window），其余值指向被 new Object()包装的对象。
+**（3）** 对象上的函数调用：绑定到那个对象。
+**（4）** 普通函数调用： 在严格模式下绑定到 undefined，否则绑定到全局对象。
+**（5）** ES6 中的箭头函数：不会使用上文的四条标准的绑定规则， 而是根据当前的词法作用域来决定 this， 具体来说， 箭头函数会继承外层函数，调用的 this 绑定（ 无论 this 绑定到什么），没有外层函数，则是绑定到全局对象（浏览器中是 window）。 这其实和 ES6 之前代码中的 self = this 机制一样。
+**（6）** DOM 事件函数：一般指向绑定事件的 DOM 元素，但有些情况绑定到全局对象（比如 IE6~IE8 的 attachEvent）。
+一定要注意，有些调用可能在无意中使用普通函数绑定规则。 如果想“ 更安全” 地忽略 this 绑定， 你可以使用一个对象， 比如 ø = Object.create(null)， 以保护全局对象。
 
-函数的 `this` 关键字在 `JavaScript` 中的表现略有不同，此外，在严格模式和非严格模式之间也会有一些差别
+# this
 
-在绝大多数情况下，函数的调用方式决定了 `this` 的值（运行时绑定）
+`this`是在函数被调用时发生的绑定，它指向什么完全取决于函数在哪里被调用
 
-`this` 关键字是函数运行时自动生成的一个内部对象，只能在函数内部使用，总指向调用它的对象
+## 全局上下文
 
-举个例子：
+非严格模式和严格模式中的 this 都是指向顶层对象
 
-```js
-function baz() {
-    // 当前调用栈是：baz
-    // 因此，当前调用位置是全局作用域
-    
-    console.log( "baz" );
-    bar(); // <-- bar的调用位置
-}
-
-function bar() {
-    // 当前调用栈是：baz --> bar
-    // 因此，当前调用位置在baz中
-    
-    console.log( "bar" );
-    foo(); // <-- foo的调用位置
-}
-
-function foo() {
-    // 当前调用栈是：baz --> bar --> foo
-    // 因此，当前调用位置在bar中
-    
-    console.log( "foo" );
-}
-
-baz(); // <-- baz的调用位置
+```javascript
+this === window; // true
+("use strict");
+this === window; // true
+this.name = "若川";
+console.log(this.name); // 若川
 ```
 
-同时，`this`在函数执行过程中，`this`一旦被确定了，就不可以再更改
+## 函数上下文
 
-```js
-var a = 10;
-var obj = {
-  a: 20
-}
+### 普通函数调用模式
 
-function fn() {
-  this = obj; // 修改this，运行后会报错
-  console.log(this.a);
-}
-
-fn();
+```javascript
+var name = "window";
+var doSth = function () {
+  console.log(this.name);
+};
+doSth(); //window
 ```
 
+var 直接给 window 添加了 name 属性
 
-
-
-
-## 二、绑定规则
-
-根据不同的使用场合，`this`有不同的值，主要分为下面几种情况：
-
-- 默认绑定
-- 隐式绑定
-- new绑定
-
-- 显示绑定
-
-
-
-### 默认绑定
-
-全局环境中定义`person`函数，内部使用`this`关键字
-
-```js
-var name = 'Jenny';
-function person() {
-    return this.name;
-}
-console.log(person());  //Jenny
+```javascript
+// 非严格模式
+let name2 = "window2";
+let doSth2 = function () {
+  console.log(this === window);
+  console.log(this.name2);
+};
+doSth2(); // true, undefined
 ```
 
-上述代码输出`Jenny`，原因是调用函数的对象在游览器中位`window`，因此`this`指向`window`，所以输出`Jenny`
+let 没有给顶层对象添加属性，window.name2 和 window.doSth 都是 undefined
 
-注意：
+```javascript
+// 严格模式
+"use strict";
+var name = "window";
+var doSth = function () {
+  console.log(typeof this === "undefined");
+  console.log(this.name);
+};
+doSth(); // true，// 报错，因为this是undefined
 
-严格模式下，不能将全局对象用于默认绑定，this会绑定到`undefined`，只有函数运行在非严格模式下，默认绑定才能绑定到全局对象
-
-
-
-### 隐式绑定
-
-函数还可以作为某个对象的方法调用，这时`this`就指这个上级对象
-
-```js
-function test() {
-  console.log(this.x);
-}
-
-var obj = {};
-obj.x = 1;
-obj.m = test;
-
-obj.m(); // 1
+doSth.call(undefined);
 ```
 
-这个函数中包含多个对象，尽管这个函数是被最外层的对象所调用，`this`指向的也只是它上一级的对象
+### 对象中的函数调用模式
 
-```js
-var o = {
-    a:10,
-    b:{
-        fn:function(){
-            console.log(this.a); //undefined
-        }
-    }
-}
-o.b.fn();
+```javascript
+var name = "window";
+var doSth = function () {
+  console.log(this.name);
+};
+var student = {
+  name: "若川",
+  doSth: doSth,
+  other: {
+    name: "other",
+    doSth: doSth,
+  },
+};
+student.doSth(); // '若川'
+student.other.doSth(); // 'other'
+// 用call类比则为：
+student.doSth.call(student);
+// 用call类比则为：
+student.other.doSth.call(student.other);
 ```
 
-上述代码中，`this`的上一级对象为`b`，`b`内部并没有`a`变量的定义，所以输出`undefined`
-
-这里再举一种特殊情况
-
-```js
-var o = {
-    a:10,
-    b:{
-        a:12,
-        fn:function(){
-            console.log(this.a); //undefined
-            console.log(this); //window
-        }
-    }
-}
-var j = o.b.fn;
-j();
+```javascript
+var studentDoSth = student.doSth;
+studentDoSth(); // 'window'
+// 用call类比则为：
+studentDoSth.call(undefined);
 ```
 
-此时`this`指向的是`window`，这里的大家需要记住，`this`永远指向的是最后调用它的对象，虽然`fn`是对象`b`的方法，但是`fn`赋值给`j`时候并没有执行，所以最终指向`window`
+### call\apply\bind 调用模式
 
+> fun.call(thisArg, arg1, arg2, ...)
 
+**（1）**`thisArg`
 
-### new绑定
-
-通过构建函数`new`关键字生成一个实例对象，此时`this`指向这个实例对象
-
-```js
-function test() {
-　this.x = 1;
+```javascript
+function test(name) {
+  this.name = name;
+  console.log(this);
 }
-
-var obj = new test();
-obj.x // 1
+test.call(1, "test"); // Number{1,name:"test"} 会指向原始值的自动包装对象
 ```
 
-上述代码之所以能过输出1，是因为`new`关键字改变了`this`的指向
+如果第一个参数为原始值（数字，字符串，布尔值），this 会指向该原始值的自动包装对象
 
-这里再列举一些特殊情况：
+如果是严格模式下，不会被包装为对象形式
 
-`new`过程遇到`return`一个对象，此时`this`指向为返回的对象
-
-```js
-function fn()  
-{  
-    this.user = 'xxx';  
-    return {};  
+```javascript
+function test(name) {
+  this.name = name;
+  console.log(this);
 }
-var a = new fn();  
-console.log(a.user); //undefined
+test.call(null, "test"); // window
 ```
 
-如果返回一个简单类型的时候，则`this`指向实例对象
+如果第一个参数为 null 和 undefined，this 会自动指向全局对象（浏览器中就是 window 对象）
 
-```js
-function fn()  
-{  
-    this.user = 'xxx';  
-    return 1;
+**（2）** `arg1, arg2, ...`指定的参数列表
+
+**（3）** 返回值
+
+返回值是调用的方法的返回值，若该方法没有返回值，则返回 undefined
+
+call 就是改变函数中 this 指向为 thisArg，并且执行这个函数
+
+> bind() 方法创建一个新的函数，当这个新函数被调用时，this 键值为其提供的值，后面为参数序列
+
+fun.bind(thisArg[, arg1[, arg2[, ...]]])
+
+```javascript
+function test(name) {
+  this.name = name;
+  console.log(this);
 }
-var a = new fn;  
-console.log(a.user); //xxx
+var newTest = test.bind(null, "test");
+newTest(); // window
 ```
 
-注意的是`null`虽然也是对象，但是此时`new`仍然指向实例对象
+表现与 call 一样（参数为基本类型或 null）
 
-```js
-function fn()  
-{  
-    this.user = 'xxx';  
-    return null;
+### 构造函数调用模式
+
+```javascript
+function Student(name) {
+  this.name = name;
+  console.log(this); // {name: '若川'}
+  // 相当于返回了
+  // return this; // {name: '若川'}
 }
-var a = new fn;  
-console.log(a.user); //xxx
+var result = new Student("若川");
 ```
 
+使用 new 操作符调用函数
 
+> 1、创建一个全新的对象
+> 2、这个对象会被执行[[Prototype]]
+> 3、生成的新对象会绑定到函数调用的 this
+> 4、通过 new 创建的每个对象将最终被[[prototype]]链接到这个函数的 prototype 对象上
+> 5、如果函数没有返回对象类型 object（包含 Function、Array、Date、RegExg、Error），那么表达式中的函数调用会自动返回这个新的对象
 
-### 显示修改
+> 特别提醒一下，new 调用时的返回值，如果没有显式返回对象或者函数，才是返回生成的新对象。
 
-`apply()、call()、bind()`是函数的一个方法，作用是改变函数的调用对象。它的第一个参数就表示改变后的调用这个函数的对象。因此，这时`this`指的就是这第一个参数
-
-```js
-var x = 0;
-function test() {
-　console.log(this.x);
+```javascript
+function Student(name) {
+  this.name = name;
+  // return function f(){};
+  // return {};
 }
-
-var obj = {};
-obj.x = 1;
-obj.m = test;
-obj.m.apply(obj) // 1
+var result = new Student("若川");
+console.log(result);
+{
+  name: "若川";
+}
+// 如果返回函数f，则result是函数f，如果是对象{}，则result是对象{}
 ```
 
-关于`apply、call、bind`三者的区别，我们后面再详细说
+### 原型链中的调用模式
 
+```javascript
+function Student(name) {
+  this.name = name;
+}
+var s1 = new Student("若川");
+Student.prototype.doSth = function () {
+  console.log(this.name);
+};
+s1.doSth(); // '若川'
+```
 
-## 三、箭头函数
+es6 中 class 实现
 
-在 ES6 的语法中还提供了箭头函语法，让我们在代码书写时就能确定 `this` 的指向（编译时绑定）
-
-举个例子：
-
-```js
-const obj = {
-  sayThis: () => {
-    console.log(this);
+```javascript
+class Student {
+  constructor(name) {
+    this.name = name;
   }
-};
-
-obj.sayThis(); // window 因为 JavaScript 没有块作用域，所以在定义 sayThis 的时候，里面的 this 就绑到 window 上去了
-const globalSay = obj.sayThis;
-globalSay(); // window 浏览器中的 global 对象
-```
-
-虽然箭头函数的`this`能够在编译的时候就确定了`this`的指向，但也需要注意一些潜在的坑
-
-下面举个例子：
-
-绑定事件监听
-
-```js
-const button = document.getElementById('mngb');
-button.addEventListener('click', ()=> {
-    console.log(this === window) // true
-    this.innerHTML = 'clicked button'
-})
-```
-
-上述可以看到，我们其实是想要`this`为点击的`button`，但此时`this`指向了`window`
-
-包括在原型上添加方法时候，此时`this`指向`window`
-
-```js
-Cat.prototype.sayName = () => {
-    console.log(this === window) //true
-    return this.name
+  doSth() {
+    console.log(this.name);
+  }
 }
-const cat = new Cat('mm');
-cat.sayName()
+let s1 = new Student("若川");
+s1.doSth();
 ```
 
-同样的，箭头函数不能作为构建函数
+### 箭头函数调用模式
 
+1、没有自己的 this、super、arguments 和 new.target 绑定。
 
+2、不能使用 new 来调用。
 
-## 四、优先级
+3、没有原型对象。
 
-### 隐式绑定 VS 显式绑定
+4、不可以改变 this 的绑定。
+
+5、形参名称不能重复。
+
+箭头函数中没有 this 绑定，必须通过查找作用域链来决定。如果箭头函数被非箭头函数包含，则 this 绑定的是最近一层非箭头函数的 this，否则 this 得值则被设置为全局对象
+
+```javascript
+var name = "window";
+var student = {
+  name: "若川",
+  doSth: function () {
+    // var self = this;
+    var arrowDoSth = () => {
+      // console.log(self.name);
+      console.log(this.name);
+    };
+    arrowDoSth();
+  },
+  arrowDoSth2: () => {
+    console.log(this.name);
+  },
+};
+student.doSth(); // '若川'
+student.arrowDoSth2(); // 'window'
+```
+
+相当于箭头函数外的 this 是缓存的该箭头函数上层的普通函数的 this，如果没有则是全局对象
+也就是说无法通过 call、apply、bind 绑定箭头函数的 this，可以绑定缓存箭头函数上层的普通函数的 this
+
+```javascript
+var student = {
+  name: "若川",
+  doSth: function () {
+    console.log(this.name);
+    return () => {
+      console.log("arrowFn:", this.name);
+    };
+  },
+};
+var person = {
+  name: "person",
+};
+student.doSth().call(person); // '若川'  'arrowFn:' '若川'
+student.doSth.call(person)(); // 'person' 'arrowFn:' 'person'
+```
+
+### DOM 事件处理函数调用
+
+`addEventListener`、`attachEvent`、`onClik`
+
+详情请见 test.html
 
 ```js
-function foo() {
-    console.log( this.a );
-}
+<button class="button">onclick</button>
+<ul class="list">
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+</ul>
+<script>
+    var button = document.querySelector('button');
+    button.onclick = function(ev){
+        console.log(this);
+        console.log(this === ev.currentTarget); // true
+    }
+    var list = document.querySelector('.list');
+    list.addEventListener('click', function(ev){
+        console.log(this === list); // true
+        console.log(this === ev.currentTarget); // true
+        console.log('this',this);
+        console.log('ev.target',ev.target);
+        console.log('ev.currentTarget',ev.currentTarget);
+    }, false);
 
-var obj1 = {
-    a: 2,
-    foo: foo
-};
-
-var obj2 = {
-    a: 3,
-    foo: foo
-};
-
-obj1.foo(); // 2
-obj2.foo(); // 3
-
-obj1.foo.call( obj2 ); // 3
-obj2.foo.call( obj1 ); // 2
+    // onclick和addEventerListener是指向绑定事件的元素
+    // ev.currentTarget是绑定事件的元素，而ev.target是当前触发事件的元素。
+</script>
 ```
 
-显然，显示绑定的优先级更高
+### 内联事件处理函数调用
 
-### new绑定 VS 隐式绑定
+```html
+<button
+  class="btn1"
+  onclick="console.log(this === document.querySelector('.btn1'))"
+>
+  点我呀
+</button>
+<button onclick="console.log((function(){return this})());">再点我呀</button>
+```
 
-```js
-function foo(something) {
-    this.a = something;
-}
+第一个是 button 本身，所以是 true，第二个是 window
 
-var obj1 = {
-    foo: foo
+## 优先级
+
+```javascript
+var name = "window";
+var person = {
+  name: "person",
 };
-
-var obj2 = {};
-
-obj1.foo( 2 );
-console.log( obj1.a ); // 2
-
-obj1.foo.call( obj2, 3 );
-console.log( obj2.a ); // 3
-
-var bar = new obj1.foo( 4 );
-console.log( obj1.a ); // 2
-console.log( bar.a ); // 4
+var doSth = function () {
+  console.log(this.name);
+  return function () {
+    console.log("return:", this.name);
+  };
+};
+var Student = {
+  name: "若川",
+  doSth: doSth,
+};
+// 普通函数调用
+doSth(); // window
+// 对象上的函数调用
+Student.doSth(); // '若川'
+// call、apply 调用
+Student.doSth.call(person); // 'person'
+new Student.doSth.call(person);
 ```
 
-可以看到，new绑定的优先级`>`隐式绑定
+试想一下，如果是 Student.doSth.call(person)先执行的情况下，那 new 执行一个函数。是没有问题的。
+然而事实上，这代码是报错的。运算符优先级是 new 比点号低，所以是执行 new (Student.doSth.call)(person)
+而 Function.prototype.call，虽然是一个函数（apply、bind 也是函数），跟箭头函数一样，不能用 new 调用。所以报错了。
 
-### `new`绑定 VS 显式绑定
+> Uncaught TypeError: Student.doSth.call is not a constructor
 
-因为`new`和`apply、call`无法一起使用，但硬绑定也是显式绑定的一种，可以替换测试
+new 调用 > call、apply、bind 调用 > 对象上的函数调用 > 普通函数调用。
 
-```js
-function foo(something) {
-    this.a = something;
+面试官考察 this 指向就可以考察 new、call、apply、bind，箭头函数等用法。从而扩展到作用域、闭包、原型链、继承、严格模式等。这就是面试官乐此不疲的原因。
+
+```javascript
+function Foo() {
+  getName = function () {
+    alert(1);
+  };
+  return this;
+}
+Foo.getName = function () {
+  alert(2);
+};
+Foo.prototype.getName = function () {
+  alert(3);
+};
+var getName = function () {
+  alert(4);
+};
+function getName() {
+  alert(5);
 }
 
-var obj1 = {};
-
-var bar = foo.bind( obj1 );
-bar( 2 );
-console.log( obj1.a ); // 2
-
-var baz = new bar( 3 );
-console.log( obj1.a ); // 2
-console.log( baz.a ); // 3
+//请写出以下输出结果：
+Foo.getName(); // 2
+getName(); // 4
+Foo().getName(); // 1
+getName(); // 1
+new Foo.getName(); // 2
+new Foo().getName(); // 3
+new new Foo().getName(); // 3
 ```
 
-`bar`被绑定到obj1上，但是`new bar(3)` 并没有像我们预计的那样把`obj1.a`修改为3。但是，`new`修改了绑定调用`bar()`中的`this`
+```javascript
+var name = 'window'
 
-我们可认为`new`绑定优先级`>`显式绑定
+ver person1 = {
+    name:'person1',
+    show1:function () {
+        console.log(this.name)
+    },
+    show2:()=>console.log(this.name),
+    show3: function () {
+        return function () {
+            console.log(this.name)
+        }
+    },
+    show4:function () {
+        return ()=>console.log(this.name)
+    }
+}
+var person2 = {name:'person2'}
 
-综上，new绑定优先级 > 显示绑定优先级 > 隐式绑定优先级 > 默认绑定优先级
+person1.show1()  // 对象中的函数调用，指向对象  'person1'
+person1.show1.call(person2) // 绑定第一个参数 'person2'
 
+person1.show2() // 箭头函数绑定上一层函数的this 没有上一层函数 绑定window ‘window’
+person1.show2.call(person2) // 使用call，自己没有this，所以绑定的是上一层函数的this，没有 即 ‘window’
 
+person1.show3()() // person1.show3 是函数，在全局作用域中调用，即普通函数调用， window
+person1.show3().call(person2) // 指向person2  ‘person2’
+person1.show3.call(person2)() // 普通函数调用，在全局作用域中调用  window
 
-## 相关链接
+person1.show4()()  // person1    不是使用时所在的对象而是定义时所在的对象
+person1.show4().call(person2) // 'person1' 不是使用时所在的对象而是定义时所在的对象
+person1.show4.call(person2)() // 'person2'
 
-- https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this
+```
+
+```javascript
+var name = 'window'
+
+ver person1 = {
+    name:'person1',
+    show1:function () {
+        console.log(this.name)
+    },
+    show2:()=>console.log(this.name),
+    show3: function () {
+        return function () {
+            console.log(this.name)
+        }
+    },
+    show4:function () {
+        return ()=>console.log(this.name)
+    }
+}
+
+var personA = new Person('personA')
+var personB = new Person('personB')
+
+personA.show1() // personA
+personA.show1.call(personB) // personB
+
+personA.show2() //personA
+personA.show2.call(personB) //personA
+
+personA.show3()() //window
+personA.show3().call(personB) // personB
+personA.show3.call(personB)() // window
+
+personA.show4()() // personA
+personA.show4().call(personB) // personA
+personA.show4.call(personB)() // personB
+```
