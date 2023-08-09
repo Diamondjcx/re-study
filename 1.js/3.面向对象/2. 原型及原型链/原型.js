@@ -1,14 +1,13 @@
 function Player() {
-    this.color = 'red';
+  this.color = "red";
 }
 
 Player.prototype.start = function () {
-    console.log(111111);
-}
+  console.log(111111);
+};
 
 const p1 = new Player();
 const p2 = new Player();
 
-
-
 console.log(Player.prototype.constructor);
+// Player

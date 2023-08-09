@@ -1,31 +1,36 @@
 // 实现一个compose函数, 用法如下:
 function fn1(x) {
-    return x + 1;
+  return x + 1;
 }
 
 function fn2(x) {
-    return x + 2;
+  return x + 2;
 }
 
 function fn3(x) {
-    return x + 3;
+  return x + 3;
 }
 
 function fn4(x) {
-    return x + 4;
+  return x + 4;
 }
-
 
 const a = compose(fn1, fn2, fn3, fn4);
 console.log(a(1)); // 1+4+3+2+1=11
 
-
 // 解答
 
 function compose() {
-    const argFnList = [...arguments];
+  const argFnList = [...arguments];
 
-    return (num) => {
-        return argFnList.reduce((pre, cur) => cur(pre), num)
-    }
+  return (num) => {
+    return argFnList.reduce((pre, cur) => cur(pre), num);
+  };
+}
+
+function compose() {
+  const argFnList = [...arguments];
+  return (num) => {
+    return argFnList.reduce((pre, cur) => cur(pre), num);
+  };
 }
