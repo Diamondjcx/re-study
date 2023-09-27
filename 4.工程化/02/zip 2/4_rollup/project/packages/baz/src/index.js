@@ -1,1 +1,0 @@
-export const baz = () => console.log('this is the baz module');

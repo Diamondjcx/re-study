@@ -1,9 +1,0 @@
-{
-  "plugins": [
-    ["./auto-try-catch"],
-    ["@babel/plugin-proposal-pipeline-operator", {
-      "proposal": "hack",
-      "topicToken": "^^"
-    }]
-  ]
-}

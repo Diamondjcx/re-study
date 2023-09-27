@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hash 路由</title>
+</head>
+<body>
+    <div id="container" >
+        <button onclick="window.location.hash = '#'">首页</button>
+        <button onclick="window.location.hash = '#about'">关于我们</button>
+        <button onclick="window.location.hash = '#user'">用户列表</button>
+    </div>
+
+    <div id="context"></div>
+    
+</body>
+<script>
+
+    class BaseRouter {
+        constructor() {
+            this.routes = {};
+            this.refresh = this.refresh.bind(this);
+            window.addEventListener('load', this.refresh);
+            window.addEventListener('hashchange', this.refresh);
+        }
+
+        route(path, callback) {
+            this.routes[path] = callback || function() {}
+        }
+
+        refresh() {
+            const path = `/${window.location.hash.slice(1) || ''}`;
+            this.routes[path]();
+        }      
+    }
+
+    const Route = new BaseRouter();
+
+    Route.route('/about', () => changeText("关于我们页面"));
+    Route.route('/user', () => changeText("用户列表页"));
+    Route.route('/', () => changeText("首页"));
+
+    function changeText(arg) {
+        document.getElementById('context').innerHTML = arg;
+    }
+
+</script>
+</html>
