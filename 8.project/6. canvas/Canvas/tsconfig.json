@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "traceResolution": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "typeRoots": ["../node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "common/*": ["common/*"],
+      "@/*": ["example/*"]
+    }
+  },
+  "exclude": ["node_modules", "./node_modules"]
+}

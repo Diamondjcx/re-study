@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types"],
+    "moduleResolution": "node"
+  },
+  "include": ["config/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "./node_modules"]
+}
