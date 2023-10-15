@@ -3,33 +3,33 @@
 
 // 面试题2 - 实现一个栈
 class Stack {
-    constructor() {
-        this.items = [];
-    }
+  constructor() {
+    this.items = [];
+  }
 
-    push(element) {
-        this.items.push(element);
-    } // 添加新元素到栈顶
+  push(element) {
+    this.items.push(element);
+  } // 添加新元素到栈顶
 
-    pop() {
-        return this.items.pop();
-    } // 移出栈顶元素
-    
-    peek() {
-        return this.items[this.items.length - 1];
-    } // 返回栈顶的元素
+  pop() {
+    return this.items.pop();
+  } // 移出栈顶元素
 
-    isEmpty() {
-        return this.items.length === 0;
-    } // 判断当前栈是否为空
+  peek() {
+    return this.items[this.items.length - 1];
+  } // 返回栈顶的元素
 
-    clear() {
-        this.items = [];
-    } // 移除栈里所有元素
+  isEmpty() {
+    return this.items.length === 0;
+  } // 判断当前栈是否为空
 
-    size() {
-        return this.items.length;
-    } // 有多少薯片
+  clear() {
+    this.items = [];
+  } // 移除栈里所有元素
+
+  size() {
+    return this.items.length;
+  } // 有多少薯片
 }
 
 // 拓展
@@ -43,30 +43,30 @@ class Stack {
 // 2. 运行方式 简单条件执行、遍历、递归……… - 算法主体结构
 // 3. 确定输入 & 输出 - 确定入参和return
 
-const isValid = function(s) {
-    // 1 - 栈 + hashMap
-    const stack = new Stack();
-    const map = {
-        '}': '{',
-        ']': '[',
-        ')': '('
+const isValid = function (s) {
+  // 1 - 栈 + hashMap
+  const stack = new Stack();
+  const map = {
+    "}": "{",
+    "]": "[",
+    ")": "(",
+  };
+
+  // 2 - 遍历
+  for (let i = 0; i < s.length; i++) {
+    const char = s[i];
+    stack.push(char);
+
+    if (stack.size < 2) continue;
+
+    const theLastOne = stack[stack.size - 1];
+    const theLastTwo = stack[stack.size - 2];
+
+    if (map[theLastOne] === theLastTwo) {
+      stack.pop();
+      stack.pop();
     }
+  }
 
-    // 2 - 遍历
-    for(let i = 0; i < s.length; i++) {
-        const char = s[i];
-        stack.push(char);
-
-        if(stack.size < 2) continue;
-
-        const theLastOne = stack[stack.size - 1];
-        const theLastTwo = stack[stack.size - 2];
-
-        if (map[theLastOne] === theLastTwo) {
-            stack.pop();
-            stack.pop();
-        }
-    }
-
-    return stack.size === 0;
-}
+  return stack.size === 0;
+};
