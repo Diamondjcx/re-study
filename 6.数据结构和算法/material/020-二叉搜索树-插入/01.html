@@ -1,0 +1,68 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+       const Compare = {
+           less:-1,
+           bigger:1,
+           equ:0
+       }
+       class Node{
+           constructor(key){
+            this.key = key
+            this.left = null
+            this.right = null
+           }
+       }
+
+       class BST {
+           constructor(){
+               this.root = null
+           }
+
+           insert(key){
+                if(this.root==null){
+                    this.root = new Node(key)
+                }else{
+                    this.insertNode(this.root,key)
+                }
+           }
+
+           compareFn(a,b){
+               if(a===b){
+                   return Compare.equ
+               }
+               return a<b?Compare.less:Compare.bigger
+           }
+           insertNode(node,key){
+            if(this.compareFn(key,node.key)===Compare.less){
+                if(node.left==null){
+                    node.left = new Node(key)
+                }else{
+                    this.insertNode(node.left,key)
+                }
+            }else{
+                if(node.right==null){
+                    node.right = new Node(key)
+                }else{
+                    this.insertNode(node.right,key)
+                }
+            }
+           }
+       }
+
+       var mytree = new BST()
+    </script>
+</body>
+
+</html>

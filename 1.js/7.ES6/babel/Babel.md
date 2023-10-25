@@ -1,17 +1,17 @@
-## babel编译工具链的使用
+## babel 编译工具链的使用
 
-https://astexplorer.net/ 查看AST.
+https://astexplorer.net/ 查看 AST.
 
 Babel 是一个工具链，主要用于将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中
 
-Babel提供了插件化的功能, 一切功能都可以以插件来实现. 方便使用和弃用.
-
+Babel 提供了插件化的功能, 一切功能都可以以插件来实现. 方便使用和弃用.
 
 ### 抽象语法书 AST
 
 这个处理过程中的每一步都涉及到创建或是操作抽象语法树，亦称 AST。
 
 这样一段代码, 会被转换成什么呢?
+
 ```JS
 function square(n) {
   return n * n;
@@ -85,31 +85,30 @@ Babel 的三个主要处理步骤分别是： 解析（parse），转换（trans
 
 1. 解析
 
-解析步骤接收代码并输出 AST。 
+解析步骤接收代码并输出 AST。
 
-* 词法分析
+- 词法分析
 
 词法分析阶段把字符串形式的代码转换为 令牌（tokens） 流。.
 
 你可以把令牌看作是一个扁平的语法片段数组：
 
-n * n
+n \* n
 
-转换成tokens是这样的
+转换成 tokens 是这样的
 
 [
-  { type: { ... }, value: "n", start: 0, end: 1, loc: { ... } },
-  { type: { ... }, value: "*", start: 2, end: 3, loc: { ... } },
-  { type: { ... }, value: "n", start: 4, end: 5, loc: { ... } },
-  ...
+{ type: { ... }, value: "n", start: 0, end: 1, loc: { ... } },
+{ type: { ... }, value: "*", start: 2, end: 3, loc: { ... } },
+{ type: { ... }, value: "n", start: 4, end: 5, loc: { ... } },
+...
 ]
 
-* 语法分析
-语法分析阶段会把一个令牌流转换成 AST 的形式。 这个阶段会使用令牌中的信息把它们转换成一个 AST 的表述结构，这样更易于后续的操作。
-
+- 语法分析
+  语法分析阶段会把一个令牌流转换成 AST 的形式。 这个阶段会使用令牌中的信息把它们转换成一个 AST 的表述结构，这样更易于后续的操作。
 
 2. 转换
-转换步骤接收 AST 并对其进行遍历，在此过程中对节点进行添加、更新及移除等操作。 这是 Babel 或是其他编译器中最复杂的过程 同时也是插件将要介入工作的部分。
+   转换步骤接收 AST 并对其进行遍历，在此过程中对节点进行添加、更新及移除等操作。 这是 Babel 或是其他编译器中最复杂的过程 同时也是插件将要介入工作的部分。
 
 3. 生成
 
@@ -117,7 +116,7 @@ n * n
 
 代码生成其实很简单：深度优先遍历整个 AST，然后构建可以表示转换后代码的字符串。
 
-### 简单写一个babel插件
+### 简单写一个 babel 插件
 
 1. 一个插件就是一个函数
 
@@ -130,7 +129,7 @@ export default function({ types: t }) {
 }
 ```
 
-Babel Types模块拥有每一个单一类型节点的定义，包括节点包含哪些属性，什么是合法值，如何构建节点、遍历节点，以及节点的别名等信息。
+Babel Types 模块拥有每一个单一类型节点的定义，包括节点包含哪些属性，什么是合法值，如何构建节点、遍历节点，以及节点的别名等信息。
 
 单一节点类型的定义形式如下：
 
@@ -139,34 +138,33 @@ defineType("BinaryExpression", {
   builder: ["operator", "left", "right"],
   fields: {
     operator: {
-      validate: assertValueType("string")
+      validate: assertValueType("string"),
     },
     left: {
-      validate: assertNodeType("Expression")
+      validate: assertNodeType("Expression"),
     },
     right: {
-      validate: assertNodeType("Expression")
-    }
+      validate: assertNodeType("Expression"),
+    },
   },
   visitor: ["left", "right"],
-  aliases: ["Binary", "Expression"]
+  aliases: ["Binary", "Expression"],
 });
 ```
 
 2. 返回一个对象
 
-visitor 属性是这个插件的主要访问者。visitor中的每个函数都接收两个参数 state 和 path.
+visitor 属性是这个插件的主要访问者。visitor 中的每个函数都接收两个参数 state 和 path.
 
 ```js
-export default function({ types: t }) {
+export default function ({ types: t }) {
   return {
-    visitor: {
-    }
+    visitor: {},
   };
-};
+}
 ```
 
-AST 通常会有许多节点，那么节点直接如何相互关联呢？ 我们可以使用一个可操作和访问的巨大可变对象表示节点之间的关联关系，或者也可以用Paths（路径）来简化这件事情。.
+AST 通常会有许多节点，那么节点直接如何相互关联呢？ 我们可以使用一个可操作和访问的巨大可变对象表示节点之间的关联关系，或者也可以用 Paths（路径）来简化这件事情。.
 
 Path 是表示两个节点之间连接的对象。
 
@@ -186,41 +184,41 @@ Path 是表示两个节点之间连接的对象。
 }
 ```
 
-3. 创建plugin.js
-   
+3. 创建 plugin.js
+
 yarn add @babel/core
 yarn add babel-template
 
 ```js
-const template = require('babel-template');
+const template = require("babel-template");
 
-const temp = template("var b = 1")
+const temp = template("var b = 1");
 
-module.exports = function ({
-    types: t
-}) {
-    // 插件内容
-    return {
-        visitor: {
-            // 接收两个参数path, state
-            VariableDeclaration(path, state) {
-                // 找到AST节点
-                const node = path.node;
-                // 判断节点类型 是否是变量节点, 申明方式是const
-                if (t.isVariableDeclaration(node, {
-                        kind: "const"
-                    })) {
-                    // 将const 声明编译为let
-                    node.kind = "let";
-                    // var b = 1 的AST节点
-                    const insertNode = temp();
-                    // 插入一行代码var b = 1
-                    path.insertBefore(insertNode);
-                }
-            }
+module.exports = function ({ types: t }) {
+  // 插件内容
+  return {
+    visitor: {
+      // 接收两个参数path, state
+      VariableDeclaration(path, state) {
+        // 找到AST节点
+        const node = path.node;
+        // 判断节点类型 是否是变量节点, 申明方式是const
+        if (
+          t.isVariableDeclaration(node, {
+            kind: "const",
+          })
+        ) {
+          // 将const 声明编译为let
+          node.kind = "let";
+          // var b = 1 的AST节点
+          const insertNode = temp();
+          // 插入一行代码var b = 1
+          path.insertBefore(insertNode);
         }
-    }
-}
+      },
+    },
+  };
+};
 ```
 
 4. 使用插件
@@ -228,16 +226,12 @@ module.exports = function ({
 babel.js
 
 ```js
-const myPlugin = require('./plugin')
-const babel = require('@babel/core');
-const content = 'const name = lubai';
+const myPlugin = require("./plugin");
+const babel = require("@babel/core");
+const content = "const name = lubai";
 // 通过你编写的插件输出的代码
-const {
-    code
-} = babel.transform(content, {
-    plugins: [
-        myPlugin
-    ]
+const { code } = babel.transform(content, {
+  plugins: [myPlugin],
 });
 
 console.log(code);

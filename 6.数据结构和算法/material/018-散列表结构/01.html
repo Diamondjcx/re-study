@@ -1,0 +1,91 @@
+<!--
+ * @作者: kerwin
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        class HashTable {
+            table = {} // 设置私有#table
+
+            toStrFn(item) {
+                if (item === null) {
+                    return "NULL"
+                } else if (item === undefined) {
+                    return "UNDEFINED"
+                } else if (typeof item === 'string' || item instanceof String) {
+                    return item
+                }
+                return JSON.stringify(item)
+            }
+            /*
+             1. 对象==》字符串
+             2. charAtCode + 
+             3. %
+            */
+            //    hashCode(key){
+            //     if(typeof key==='number'){
+            //         return key
+            //     }
+            //     const tablekey = this.toStrFn(key)
+            //     let hash = 0
+            //     for(let i=0;i<tablekey.length;i++){
+            //         hash+= tablekey.charCodeAt(i)
+            //     }
+            //     return hash%37
+            //    }
+
+            hashCode(key) {
+                const tableKey = this.toStrFn(key);
+                let hash = 5381;
+                for (let i = 0; i < tableKey.length; i++) {
+                    hash = (hash * 33) + tableKey.charCodeAt(i);
+                }
+                return hash % 1013;
+            }
+
+            //put
+            set(key, value) {
+                if (key != null && value != null) {
+                    const position = this.hashCode(key);
+                    this.table[position] = new ValuePair(key, value)
+                    return true
+                }
+                return false
+            }
+
+            get(key) {
+                const valuepari = this.table[this.hashCode(key)]
+                return valuepari == null ? undefined : valuepari.value
+            }
+
+            remove(key) {
+                const hash = this.hashCode(key)
+                const valuepari = this.table[hash]
+                if (valuepari != null) {
+                    delete this.table[hash]
+                    return true
+                }
+                return false
+            }
+        }
+
+        class ValuePair {
+            constructor(key, value) {
+                this.key = key
+                this.value = value
+            }
+        }
+
+        var mymap = new HashTable()
+    </script>
+</body>
+
+</html>

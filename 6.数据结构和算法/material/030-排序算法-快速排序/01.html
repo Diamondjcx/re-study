@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+       // [3,4,5,2,1]
+
+       function quickSort(arr){
+        const {length} = arr
+        if(length<2){
+            return arr
+        }
+        //基准
+        let base = arr[0]
+        let minArr  =arr.slice(1).filter(item=>item<=base)
+        let maxArr  =arr.slice(1).filter(item=>item>base)
+
+        return quickSort(minArr).concat(base).concat(quickSort(maxArr))
+       }
+
+       quickSort([3,4,5,2,1])
+    </script>
+</body>
+</html>
