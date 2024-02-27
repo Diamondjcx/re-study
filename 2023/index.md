@@ -1,6 +1,3 @@
-1. 先将简历上的点列下来准备（背景、问题 再去做，侧重于业务）
-2. 再准备拓展知识点
-
 # 陈列打卡
 
 ## 亮点一 ：将 30+页面老旧代码进行重构，重构代码 2w 行+，项目可维护性极大提升，bug 排查速度提升明显
@@ -107,7 +104,20 @@
 
 3.  其次字体做的懒加载，字体没有加载出来之前，先用系统的字体，字体加载出来之后，再替换系统的字体，更大程度的压缩 js 资源
 
+```css
+@font-face {
+  font-family: "Awesome Font";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Awesome Font"), url("/fonts/awesome.woff2") format("woff2"), url("/fonts/awesome.woff")
+      format("woff"), url("/fonts/awesome.ttf") format("truetype"), url("/fonts/awesome.eot")
+      format("embedded-opentype");
+}
+```
+
 加载的字体包 把数字英文中文都加载了，其实首屏用不到，可以把用到的分出来，字体分包
+font-spider
 
 4.  图片压缩 tiny
 

@@ -3,13 +3,12 @@
 首先看 call 做了什么，call()方法在使用一个指定 this 值和若干指定的参数值的前提下调用某个函数或方法
 
 ```js
-function foo() {
-  console.log("函数内部this", this);
-}
-foo();
+fun.call(thisArg, arg1, arg2, ...)
+call 就是改变函数中 this 指向为 thisArg，并且执行这个函数
 
-// 使用
-foo.call({ a: 1 });
+> bind() 方法创建一个新的函数，当这个新函数被调用时，this 键值为其提供的值，后面为参数序列
+
+fun.bind(thisArg[, arg1[, arg2[, ...]]])
 ```
 
 ```js
@@ -17,7 +16,7 @@ foo.call({ a: 1 });
 Function.prototype.call = function (context, ...args) {
   context = context || window;
 
-  const fnSymbol = Symbol("fn"); // 定义一个唯一的key
+  const fnSymbol = Symbol("fn");
   context[fnSymbol] = this;
 
   context[fnSymbol](...args);

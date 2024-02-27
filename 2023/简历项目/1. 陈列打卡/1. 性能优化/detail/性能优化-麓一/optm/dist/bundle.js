@@ -3,21 +3,19 @@
 (function () {
     'use strict';
 
-    console.log("Welcome luyi"); // LCP， FP， FCP
+    console.log("Welcome luyi");
 
+    // LCP， FP， FCP
     new PerformanceObserver((entryList, observer) => {
       let entries = entryList.getEntries();
-
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].name === 'first-paint') {
           console.log(`FP: ${entries[i].startTime}ms`);
         }
-
         if (entries[i].name === 'first-contentful-paint') {
           console.log(`FCP: ${entries[i].startTime}ms`);
         }
       }
-
       observer.disconnect();
     }).observe({
       entryTypes: ['paint']
